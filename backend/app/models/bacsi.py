@@ -16,5 +16,5 @@ class BacSi(Base):
     email = Column(String(100))
 
     lophoc = relationship("LopHoc", back_populates="bacsi")
-    user = relationship("User", back_populates="bacsi", uselist=False)
+    user = relationship("User", back_populates="bacsi")
     cuochen = relationship("CuocHen", back_populates="bacsi")
