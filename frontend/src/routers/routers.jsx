@@ -9,6 +9,7 @@ import Home from "../pages/home";
 import BacSiHome from "../pages/BacSiHome";
 import AdminHome from "../pages/AdminHome";
 import UserHome from "../pages/UserHome";
+import DoctorManage from "../pages/Admin/DoctorManage";
 
 // Pages (ví dụ)
 const DatLich = () => <div className="p-6">Trang Đặt lịch</div>;
@@ -28,10 +29,20 @@ const Routers = () => {
         <Route path="/xem-lich" element={<XemLich />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+
         {/* Login chuyen theo role  */}
         <Route path="/home" element={<UserHome />} />
         <Route path="/admin" element={<AdminHome />} />
+        {/* Logic xu ly trong trang role admin */}
+        <Route path="/admin/quan-ly-bac-si" element={<DoctorManage />} />
+        <Route path="/admin/quan-ly-bac-si" element={<AdminHome />} />
+        <Route path="/admin/quan-ly-bac-si" element={<AdminHome />} />
+      
+
         <Route path="/bacsi" element={<BacSiHome />} />
+
+
+
       </Routes>
     </BrowserRouter>
   );

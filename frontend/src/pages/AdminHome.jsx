@@ -1,9 +1,12 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const AdminHome = () => {
+  const navigate = useNavigate();
+
   const handleLogout = () => {
     localStorage.clear();
-    window.location.href = "/login";
+    navigate("/login");
   };
 
   return (
@@ -40,7 +43,10 @@ const AdminHome = () => {
               Thêm, sửa, xóa thông tin bác sĩ trong hệ thống.
             </p>
 
-            <button className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">
+            <button
+              onClick={() => navigate("/admin/quan-ly-bac-si")}
+              className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+            >
               Truy cập
             </button>
           </div>
@@ -54,7 +60,10 @@ const AdminHome = () => {
               Xem danh sách và quản lý thông tin bệnh nhân.
             </p>
 
-            <button className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">
+            <button
+              onClick={() => navigate("/admin/quan-ly-benh-nhan")}
+              className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+            >
               Truy cập
             </button>
           </div>
@@ -68,7 +77,10 @@ const AdminHome = () => {
               Theo dõi và quản lý lịch khám bệnh.
             </p>
 
-            <button className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">
+            <button
+              onClick={() => navigate("/admin/quan-ly-lich-kham")}
+              className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+            >
               Truy cập
             </button>
           </div>
