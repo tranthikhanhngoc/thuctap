@@ -7,26 +7,36 @@ from models.benhnhan import BenhNhan
 from schemas.user_schema import UserRegisterRequest
 from core.security import create_access_token
 
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+
+# =====================
+# HASH PASSWORD
+# =====================
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
 
+
 def verify_password(password: str, hashed: str) -> bool:
     return pwd_context.verify(password, hashed)
+
 
 # =====================
 # REGISTER
 # =====================
 def register_user(db: Session, data: UserRegisterRequest):
-    # 1. Check username
-    if db.query(User).filter(User.username == data.username).first():
+
+    # 1. kiểm tra username
+    existing_user = db.query(User).filter(User.username == data.username).first()
+
+    if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Username đã tồn tại"
         )
 
-    # 2. Tạo bệnh nhân (có thể rỗng)
+    # 2. tạo bệnh nhân (ban đầu có thể rỗng)
     benhnhan = BenhNhan()
 
     if data.benhnhan:
@@ -38,15 +48,16 @@ def register_user(db: Session, data: UserRegisterRequest):
         benhnhan.dia_chi = data.benhnhan.dia_chi
 
     db.add(benhnhan)
-    db.flush()  # lấy id_benhnhan
+    db.flush()   # lấy id_benhnhan trước khi commit
 
-    # 3. Tạo user
+    # 3. tạo user
     user = User(
         username=data.username,
         password=hash_password(data.password),
         role="benhnhan",
         id_benhnhan=benhnhan.id_benhnhan
     )
+
     db.add(user)
     db.commit()
     db.refresh(user)
@@ -63,18 +74,26 @@ def register_user(db: Session, data: UserRegisterRequest):
 # LOGIN + JWT
 # =====================
 def login_user(db: Session, username: str, password: str):
+
     user = db.query(User).filter(User.username == username).first()
 
-    if not user or not verify_password(password, user.password):
+    if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Sai username hoặc password"
         )
 
+    if not verify_password(password, user.password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Sai username hoặc password"
+        )
+
+    # tạo token
     access_token = create_access_token(
         data={
-            "sub": user.username,
-            "user_id": user.id_user,
+            "sub": str(user.id_user),   # ⚠️ PHẢI là id_user
+            "username": user.username,
             "role": user.role
         }
     )
