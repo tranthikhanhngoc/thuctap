@@ -80,7 +80,7 @@ const BacSiHome = () => {
             </p>
 
             <button
-              onClick={() => (window.location.href = "/lich-kham")}
+              onClick={() => (window.location.href = "/bacsi/lich-kham")}
               className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
             >
               Truy cập
@@ -98,7 +98,7 @@ const BacSiHome = () => {
             </p>
 
             <button
-              onClick={() => (window.location.href = "/benh-nhan")}
+              onClick={() => (window.location.href = "/bacsi/benh-nhan")}
               className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
             >
               Truy cập
@@ -116,7 +116,7 @@ const BacSiHome = () => {
             </p>
 
             <button
-              onClick={() => (window.location.href = "/benh-an")}
+              onClick={() => (window.location.href = "/bacsi/benh-an")}
               className="bg-blue-500 text-white px-4 py-2 rounded-lg ">
               Truy cập
             </button>

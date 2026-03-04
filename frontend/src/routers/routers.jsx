@@ -10,6 +10,13 @@ import BacSiHome from "../pages/BacSiHome";
 import AdminHome from "../pages/AdminHome";
 import UserHome from "../pages/UserHome";
 import DoctorManage from "../pages/Admin/DoctorManage";
+import PatientProfile from "../pages/Patient/PatientProfile";
+import PatientManage from "../pages/Admin/PatientManage";
+import ScheduleManage from "../pages/Admin/ScheduleManage";
+import Booking from "../pages/Patient/Booking";
+import LichSuDatLich from "../pages/Patient/LichSuDatLich";
+import BookingManage from "../pages/Admin/BookingManage";
+import About from "../pages/About";
 
 // Pages (ví dụ)
 const DatLich = () => <div className="p-6">Trang Đặt lịch</div>;
@@ -33,10 +40,22 @@ const Routers = () => {
         {/* Login chuyen theo role  */}
         <Route path="/home" element={<UserHome />} />
         <Route path="/admin" element={<AdminHome />} />
+        <Route path="/about" element={<About />} />
         {/* Logic xu ly trong trang role admin */}
         <Route path="/admin/quan-ly-bac-si" element={<DoctorManage />} />
+        <Route path="/admin/quan-ly-benh-nhan" element={<PatientManage />} />
+        <Route path="/admin/quan-ly-lich-kham" element={<BookingManage />} />
         <Route path="/admin/quan-ly-bac-si" element={<AdminHome />} />
-        <Route path="/admin/quan-ly-bac-si" element={<AdminHome />} />
+        <Route path="/admin/quan-ly-lich-hoc" element={<ScheduleManage />} />
+        {/* Logic xu ly trong trang role patient */}
+        <Route path="/appointment" element={<Booking />} />
+        <Route path="/patient/quan-ly-benh-nhan" element={<AdminHome />} />
+        <Route path="/patient/quan-ly-bac-si" element={<AdminHome />} />
+        <Route
+  path="/patient/lich-su-dat-lich"
+  element={<LichSuDatLich />}
+/>
+
       
 
         <Route path="/bacsi" element={<BacSiHome />} />

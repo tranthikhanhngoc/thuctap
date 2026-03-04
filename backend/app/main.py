@@ -6,6 +6,8 @@ from routers.users import router as user_router
 from routers.doctors import router as doctor_router
 from routers.benhnhan import router as benhnhan_router
 from routers.lophocs import router as lophoc_router
+from routers.schedule import router as schedule_router
+from routers.cuoc_hen import router as cuoc_hen_router
 
 
 app = FastAPI()
@@ -25,6 +27,8 @@ app.include_router(user_router)
 app.include_router(doctor_router)
 app.include_router(benhnhan_router)
 app.include_router(lophoc_router)
+app.include_router(schedule_router)
+app.include_router(cuoc_hen_router)
 
 @app.get("/")
 def root():

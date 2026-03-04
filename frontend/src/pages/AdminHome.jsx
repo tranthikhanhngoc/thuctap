@@ -11,19 +11,6 @@ const AdminHome = () => {
 
   return (
     <div className="min-h-screen bg-gray-100">
-
-      {/* Header */}
-      <div className="w-full bg-red-600 text-white p-4 flex justify-between items-center shadow">
-        <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-
-        <button
-          onClick={handleLogout}
-          className="bg-white text-red-600 px-4 py-2 rounded-lg font-semibold hover:bg-gray-200"
-        >
-          Đăng xuất
-        </button>
-      </div>
-
       {/* Content */}
       <div className="p-10">
 
@@ -84,6 +71,24 @@ const AdminHome = () => {
               Truy cập
             </button>
           </div>
+          {/* Quản lý lịch học */}
+          <div className="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition">
+            <h3 className="text-xl font-semibold mb-3 text-red-600">
+              Quản lý lịch học
+            </h3>
+            <p className="text-gray-600 mb-4">
+              Thêm và xem lịch học
+            </p>
+
+            <button
+              onClick={() => navigate("/admin/quan-ly-lich-hoc")}
+              className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+            >
+              Truy cập
+            </button>
+            </div>
+
+          
 
         </div>
       </div>

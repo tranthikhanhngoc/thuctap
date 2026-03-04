@@ -25,11 +25,13 @@ const Login = () => {
         const token = res.data.access_token;
         const role = res.data.user.role;
         const usernameRes = res.data.user.username;
+        const id_benhnhan = res.data.user.id_benhnhan;
 
         // lưu localStorage
         localStorage.setItem("access_token", token);
         localStorage.setItem("role", role);
         localStorage.setItem("username", usernameRes);
+        localStorage.setItem("id_benhnhan", id_benhnhan);
 
         // điều hướng theo role
         if (role === "admin") {

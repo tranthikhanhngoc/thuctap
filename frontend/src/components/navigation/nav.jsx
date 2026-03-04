@@ -1,60 +1,98 @@
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const token = localStorage.getItem("access_token");
+  const username = localStorage.getItem("username");
+
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate("/login");
+  };
+
+  const menu = [
+    { name: "Home", path: "/" },
+    { name: "About", path: "/about" },
+    { name: "Appointment", path: "/patient/lich-su-dat-lich" },
+    { name: "Contact", path: "/contact" },
+  ];
 
   return (
-    <nav className="w-full bg-slate-900 text-white">
+    <nav className="w-full bg-white shadow-sm">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-
+        
         {/* Logo */}
         <div
-          className="text-xl font-bold cursor-pointer"
           onClick={() => navigate("/")}
+          className="text-2xl font-bold cursor-pointer"
         >
-          MyApp
+          <span className="text-pink-600">Be</span>
+          <span className="text-gray-800">Healthy</span>
         </div>
 
         {/* Menu */}
-        <ul className="flex gap-8">
-          <li>
-            <Link to="/" className="hover:text-blue-400">
-              Home
-            </Link>
-          </li>
-          <li>
-            <Link to="/about" className="hover:text-blue-400">
-              About
-            </Link>
-          </li>
-          <li>
-            <Link to="/services" className="hover:text-blue-400">
-              Services
-            </Link>
-          </li>
-          <li>
-            <Link to="/contact" className="hover:text-blue-400">
-              Contact
-            </Link>
-          </li>
+        <ul className="hidden md:flex gap-8 font-medium text-gray-600">
+          {menu.map((item) => (
+            <li key={item.path}>
+              <Link
+                to={item.path}
+                className={`hover:text-pink-500 transition ${
+                  location.pathname === item.path
+                    ? "text-pink-500 border-b-2 border-pink-500 pb-1"
+                    : ""
+                }`}
+              >
+                {item.name}
+              </Link>
+            </li>
+          ))}
         </ul>
 
-        {/* Auth buttons */}
-        <div className="flex gap-4">
+        {/* Right side buttons */}
+        <div className="flex items-center gap-4">
+          
+          {/* Appointment */}
           <button
-            onClick={() => navigate("/login")}
-            className="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-lg"
+            onClick={() => navigate("/appointment")}
+            className="bg-pink-500 hover:bg-pink-600 text-white px-5 py-2 rounded-md shadow-md transition"
           >
-            Login
+            APPOINTMENT
           </button>
 
-          <button
-            onClick={() => navigate("/register")}
-            className="border border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white px-4 py-2 rounded-lg"
-          >
-            Register
-          </button>
+          {/* Auth Section */}
+          {!token ? (
+            <>
+              <button
+                onClick={() => navigate("/login")}
+                className="text-gray-600 hover:text-pink-500"
+              >
+                Login
+              </button>
+
+              <button
+                onClick={() => navigate("/register")}
+                className="border border-pink-500 text-pink-500 px-4 py-1 rounded-md hover:bg-pink-500 hover:text-white transition"
+              >
+                Register
+              </button>
+            </>
+          ) : (
+            <>
+              <span className="text-gray-700 font-medium">
+                👋 {username}
+              </span>
+
+              <button
+                onClick={handleLogout}
+                className="text-red-500 hover:text-red-600 font-medium"
+              >
+                Logout
+              </button>
+            </>
+          )}
         </div>
       </div>
     </nav>

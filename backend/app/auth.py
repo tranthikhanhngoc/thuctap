@@ -104,6 +104,7 @@ def login_user(db: Session, username: str, password: str):
         "user": {
             "id_user": user.id_user,
             "username": user.username,
-            "role": user.role
+            "role": user.role,
+            "id_benhnhan": user.id_benhnhan   # ✅ thêm dòng này
         }
     }

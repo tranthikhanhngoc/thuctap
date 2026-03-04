@@ -8,6 +8,8 @@ class BacSiCreate(BaseModel):
     nam_kinh_nghiem: int
     so_dien_thoai: str
     email: str
+    username: str
+    password: str
 
 class BacSiUpdate(BaseModel):
     ho_ten: Optional[str]

@@ -1,11 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-
 from database import get_db
+
 from models.bacsi import BacSi
+from models.user import User
 from schemas.bacsi_schema import BacSiCreate, BacSiUpdate
 
+from passlib.context import CryptContext
+
 router = APIRouter(prefix="/doctors", tags=["Doctor"])
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 # ===============================
@@ -13,8 +18,15 @@ router = APIRouter(prefix="/doctors", tags=["Doctor"])
 # ===============================
 @router.get("/")
 def get_all_doctors(db: Session = Depends(get_db)):
-    doctors = db.query(BacSi).all()
-    return doctors
+    return db.query(BacSi).all()
+
+
+# ===============================
+# LẤY BÁC SĨ CHƯA CÓ LỚP
+# ===============================
+@router.get("/no-class")
+def get_doctors_no_class(db: Session = Depends(get_db)):
+    return db.query(BacSi).filter(BacSi.id_lophoc == None).all()
 
 
 # ===============================
@@ -23,69 +35,114 @@ def get_all_doctors(db: Session = Depends(get_db)):
 @router.get("/{doctor_id}")
 def get_doctor(doctor_id: int, db: Session = Depends(get_db)):
 
-    doctor = db.query(BacSi).filter(BacSi.id_bacsi == doctor_id).first()
+    doctor = db.query(BacSi).filter(
+        BacSi.id_bacsi == doctor_id
+    ).first()
 
     if not doctor:
         raise HTTPException(status_code=404, detail="Doctor not found")
 
     return doctor
 
+
 # ===============================
-# THÊM BÁC SĨ
+# THÊM BÁC SĨ + USER
 # ===============================
 @router.post("/")
 def create_doctor(data: BacSiCreate, db: Session = Depends(get_db)):
 
-    doctor = BacSi(
-        ho_ten=data.ho_ten,
-        chuyen_khoa=data.chuyen_khoa,
-        trinh_do=data.trinh_do,
-        nam_kinh_nghiem=data.nam_kinh_nghiem,
-        so_dien_thoai=data.so_dien_thoai,
-        email=data.email
-    )
+    # kiểm tra username trùng
+    existing_user = db.query(User).filter(
+        User.username == data.username
+    ).first()
 
-    db.add(doctor)
-    db.commit()
-    db.refresh(doctor)
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Username đã tồn tại")
 
-    return doctor
+    try:
+        # 1️⃣ Tạo bác sĩ
+        doctor = BacSi(
+            ho_ten=data.ho_ten,
+            chuyen_khoa=data.chuyen_khoa,
+            trinh_do=data.trinh_do,
+            nam_kinh_nghiem=data.nam_kinh_nghiem,
+            so_dien_thoai=data.so_dien_thoai,
+            email=data.email
+        )
+
+        db.add(doctor)
+        db.commit()
+        db.refresh(doctor)
+
+        # 2️⃣ Tạo user cho bác sĩ
+        hashed_password = pwd_context.hash(data.password)
+
+        user = User(
+            username=data.username,
+            password=hashed_password,
+            role="bacsi",
+            id_bacsi=doctor.id_bacsi
+        )
+
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+
+        return {
+            "message": "Tạo bác sĩ thành công",
+            "doctor_id": doctor.id_bacsi,
+            "user_id": user.id_user
+        }
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 # ===============================
 # CẬP NHẬT BÁC SĨ
 # ===============================
-@router.put("/{id}")
-def update_doctor(id: int, data: BacSiUpdate, db: Session = Depends(get_db)):
-    doctor = db.query(BacSi).filter(BacSi.id_bacsi == id).first()
+@router.put("/{doctor_id}")
+def update_doctor(doctor_id: int, data: BacSiUpdate, db: Session = Depends(get_db)):
+
+    doctor = db.query(BacSi).filter(
+        BacSi.id_bacsi == doctor_id
+    ).first()
 
     if not doctor:
         raise HTTPException(status_code=404, detail="Doctor not found")
 
-    doctor.ho_ten = data.ho_ten
-    doctor.chuyen_khoa = data.chuyen_khoa
-    doctor.trinh_do = data.trinh_do
-    doctor.nam_kinh_nghiem = data.nam_kinh_nghiem
-    doctor.so_dien_thoai = data.so_dien_thoai
-    doctor.email = data.email
-    doctor.id_lophoc = data.id_lophoc
+    for key, value in data.dict(exclude_unset=True).items():
+        setattr(doctor, key, value)
 
     db.commit()
     db.refresh(doctor)
 
     return doctor
 
+
 # ===============================
-# XÓA BÁC SĨ
+# XÓA BÁC SĨ + USER
 # ===============================
 @router.delete("/{doctor_id}")
 def delete_doctor(doctor_id: int, db: Session = Depends(get_db)):
 
-    doctor = db.query(BacSi).filter(BacSi.id_bacsi == doctor_id).first()
+    doctor = db.query(BacSi).filter(
+        BacSi.id_bacsi == doctor_id
+    ).first()
 
     if not doctor:
         raise HTTPException(status_code=404, detail="Doctor not found")
 
+    # xóa user trước
+    user = db.query(User).filter(
+        User.id_bacsi == doctor_id
+    ).first()
+
+    if user:
+        db.delete(user)
+
     db.delete(doctor)
     db.commit()
 
-    return {"message": "Doctor deleted"}
+    return {"message": "Doctor deleted successfully"}
