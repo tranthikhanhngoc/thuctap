@@ -79,7 +79,7 @@ const UserHome = () => {
             </p>
 
             <button
-              onClick={() => navigate("/patient/dat-lich")}
+              onClick={() => navigate("/patient/appointment")}
               className="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600"
             >
               Đặt lịch

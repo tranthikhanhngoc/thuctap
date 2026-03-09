@@ -27,104 +27,108 @@ const Login = () => {
         const usernameRes = res.data.user.username;
         const id_benhnhan = res.data.user.id_benhnhan;
 
-        // lưu localStorage
         localStorage.setItem("access_token", token);
         localStorage.setItem("role", role);
         localStorage.setItem("username", usernameRes);
         localStorage.setItem("id_benhnhan", id_benhnhan);
 
-        // điều hướng theo role
-        if (role === "admin") {
-          navigate("/admin");
-        } 
-        else if (role === "bacsi") {
-          navigate("/bacsi");
-        } 
-        else {
-          navigate("/home");
-        }
+        if (role === "admin") navigate("/admin");
+        else if (role === "bacsi") navigate("/bacsi");
+        else navigate("/home");
       }
 
     } catch (err) {
-      console.error(err);
-
       const message =
         err.response?.data?.detail ||
         err.response?.data?.message ||
         "Đăng nhập thất bại";
 
-      setError(
-        typeof message === "string"
-          ? message
-          : JSON.stringify(message)
-      );
+      setError(typeof message === "string" ? message : JSON.stringify(message));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-100 px-4 py-12">
-      <div className="w-full max-w-3xl bg-white rounded-3xl shadow-2xl overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 via-white to-pink-100 px-4">
 
-        <div className="bg-gradient-to-r from-purple-600 to-indigo-600 px-10 py-12 text-center text-white">
-          <h2 className="text-4xl font-extrabold">Đăng nhập</h2>
-          <p className="mt-3 text-purple-100 text-lg">
-            Hệ thống quản lý hồ sơ bệnh nhân
+      {/* Card */}
+      <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl p-10">
+
+        {/* Title */}
+        <div className="text-center mb-8">
+          <h2 className="text-4xl font-extrabold text-pink-500">
+            BeHealthy
+          </h2>
+          <p className="text-gray-500 mt-2">
+            Đăng nhập hệ thống đặt lịch khám
           </p>
         </div>
 
-        <div className="px-10 py-12">
+        {/* Error */}
+        {error && (
+          <div className="mb-6 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm">
+            {error}
+          </div>
+        )}
 
-          {error && (
-            <div className="mb-8 bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-2xl">
-              {error}
-            </div>
-          )}
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-6">
 
-          <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Username */}
+          <div>
+            <label className="text-gray-700 font-medium block mb-2">
+              Username
+            </label>
 
-            <div>
-              <label className="block font-semibold mb-2">
-                Username
-              </label>
+            <input
+              type="text"
+              placeholder="Nhập username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl
+              focus:outline-none focus:ring-2 focus:ring-pink-400
+              focus:border-pink-400 transition"
+            />
+          </div>
 
-              <input
-                type="text"
-                placeholder="Nhập username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-                className="w-full px-5 py-3 border rounded-xl"
-              />
-            </div>
+          {/* Password */}
+          <div>
+            <label className="text-gray-700 font-medium block mb-2">
+              Password
+            </label>
 
-            <div>
-              <label className="block font-semibold mb-2">
-                Password
-              </label>
+            <input
+              type="password"
+              placeholder="Nhập mật khẩu"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl
+              focus:outline-none focus:ring-2 focus:ring-pink-400
+              focus:border-pink-400 transition"
+            />
+          </div>
 
-              <input
-                type="password"
-                placeholder="Nhập mật khẩu"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full px-5 py-3 border rounded-xl"
-              />
-            </div>
+          {/* Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 text-white font-bold rounded-xl
+            bg-pink-500 hover:bg-pink-600 transition
+            shadow-lg hover:shadow-xl"
+          >
+            {loading ? "Đang đăng nhập..." : "Đăng nhập"}
+          </button>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-4 text-white font-bold text-lg rounded-xl
-              bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90"
-            >
-              {loading ? "Đang đăng nhập..." : "Đăng nhập"}
-            </button>
+        </form>
 
-          </form>
-        </div>
+        {/* Extra */}
+        <p className="text-center text-gray-400 text-sm mt-6">
+          © 2026 BeHealthy
+        </p>
+
       </div>
     </div>
   );

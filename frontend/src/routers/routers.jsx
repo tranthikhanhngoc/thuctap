@@ -17,6 +17,10 @@ import Booking from "../pages/Patient/Booking";
 import LichSuDatLich from "../pages/Patient/LichSuDatLich";
 import BookingManage from "../pages/Admin/BookingManage";
 import About from "../pages/About";
+import Contact from "../pages/Contact";
+import Footer from "../components/footer/Footer";
+import LichKham from "../pages/Doctor/LichKham";
+import LichHoc from "../pages/Doctor/LichHoc";
 
 // Pages (ví dụ)
 const DatLich = () => <div className="p-6">Trang Đặt lịch</div>;
@@ -38,9 +42,10 @@ const Routers = () => {
         <Route path="/register" element={<Register />} />
 
         {/* Login chuyen theo role  */}
-        <Route path="/home" element={<UserHome />} />
+        <Route path="/home" element={<Home />} />
         <Route path="/admin" element={<AdminHome />} />
         <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
         {/* Logic xu ly trong trang role admin */}
         <Route path="/admin/quan-ly-bac-si" element={<DoctorManage />} />
         <Route path="/admin/quan-ly-benh-nhan" element={<PatientManage />} />
@@ -48,14 +53,17 @@ const Routers = () => {
         <Route path="/admin/quan-ly-bac-si" element={<AdminHome />} />
         <Route path="/admin/quan-ly-lich-hoc" element={<ScheduleManage />} />
         {/* Logic xu ly trong trang role patient */}
-        <Route path="/appointment" element={<Booking />} />
+        <Route path="/patient/appointment" element={<Booking />} />
         <Route path="/patient/quan-ly-benh-nhan" element={<AdminHome />} />
         <Route path="/patient/quan-ly-bac-si" element={<AdminHome />} />
         <Route
-  path="/patient/lich-su-dat-lich"
-  element={<LichSuDatLich />}
-/>
-
+        path="/patient/lich-su-dat-lich"
+          element={<LichSuDatLich />}
+        />
+        {/* Logic xu ly trong trang role bac si */}
+        <Route path="/bacsi/lich-kham" element={<LichKham />} />
+        <Route path="/bacsi/lich-hoc" element={<LichHoc />} />
+        <Route path="/bacsi/benh-an" element={<BacSiHome />} />
       
 
         <Route path="/bacsi" element={<BacSiHome />} />
@@ -63,6 +71,11 @@ const Routers = () => {
 
 
       </Routes>
+
+
+      {/* Nav luôn hiển thị */}
+        <Footer />
+
     </BrowserRouter>
   );
 };
