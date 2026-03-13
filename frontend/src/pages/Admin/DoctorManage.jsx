@@ -27,6 +27,9 @@ const DoctorManage = () => {
     fetchDoctors();
     fetchClasses();
   }, []);
+  useEffect(() => {
+  console.log("Danh sách lớp:", classes);
+}, [classes]);
 
   const fetchDoctors = async () => {
     try {
@@ -39,16 +42,33 @@ const DoctorManage = () => {
     }
   };
 
-  const fetchClasses = async () => {
-    try {
-      const res = await axios.get(`${API}/classes/`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setClasses(res.data || []);
-    } catch (err) {
-      console.error(err);
+ const fetchClasses = async () => {
+  try {
+    const res = await axios.get(`${API}/classes/`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    console.log("API classes response:", res.data);
+
+    // xử lý nhiều dạng response
+    let classData = [];
+
+    if (Array.isArray(res.data)) {
+      classData = res.data;
+    } else if (Array.isArray(res.data.data)) {
+      classData = res.data.data;
+    } else if (Array.isArray(res.data.classes)) {
+      classData = res.data.classes;
     }
-  };
+
+    setClasses(classData);
+  } catch (err) {
+    console.error("Không lấy được danh sách lớp:", err.response?.data || err);
+  }
+};
 
   const handleChange = (e) => {
     setFormData({
@@ -334,11 +354,15 @@ const DoctorManage = () => {
                   className="w-full border border-gray-300 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-400 transition bg-white"
                 >
                   <option value="">Chưa thuộc lớp nào</option>
-                  {classes.map((c) => (
-                    <option key={c.id_lophoc} value={c.id_lophoc}>
-                      {c.ten_lophoc}
-                    </option>
-                  ))}
+                  {classes && classes.length > 0 ? (
+  classes.map((c) => (
+    <option key={c.id_lophoc} value={c.id_lophoc}>
+      {c.ten_lop || `Lớp ${c.id_lophoc}`}
+    </option>
+  ))
+) : (
+  <option disabled>Không có lớp</option>
+)}
                 </select>
               </div>
             </div>
