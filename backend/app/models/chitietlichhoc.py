@@ -14,6 +14,7 @@ class ChiTietLichHoc(Base):
 
     mon_hoc = Column(String(100))
     giang_vien = Column(String(100))
+    ca_hoc      = Column(String(20), nullable=True)    # "Sáng", "Chiều", "Cả ngày", None
 
     lichhoc = relationship("LichHoc", back_populates="chitietlichhoc", cascade="all, delete")
     lophoc = relationship("LopHoc", back_populates="chitietlichhoc", cascade="all, delete")
