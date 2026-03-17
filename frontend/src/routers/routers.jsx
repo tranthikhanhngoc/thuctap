@@ -21,6 +21,7 @@ import Contact from "../pages/Contact";
 import Footer from "../components/footer/Footer";
 import LichKham from "../pages/Doctor/LichKham";
 import LichHoc from "../pages/Doctor/LichHoc";
+import XemBacSiTruc from "../pages/Patient/XemBacSiTruc";
 
 // Pages (ví dụ)
 const DatLich = () => <div className="p-6">Trang Đặt lịch</div>;
@@ -56,6 +57,7 @@ const Routers = () => {
         <Route path="/patient/appointment" element={<Booking />} />
         <Route path="/patient/quan-ly-benh-nhan" element={<AdminHome />} />
         <Route path="/patient/quan-ly-bac-si" element={<AdminHome />} />
+        <Route path="/patient/xem-bac-si-truc" element={<XemBacSiTruc />} />
         <Route
         path="/patient/lich-su-dat-lich"
           element={<LichSuDatLich />}

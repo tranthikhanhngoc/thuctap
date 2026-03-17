@@ -19,6 +19,7 @@ const Navbar = () => {
     { name: "Trang chủ", path: "/" },
     { name: "Giới thiệu", path: "/about" },
     { name: "Liên hệ", path: "/contact" },
+    { name: "Xem bác sĩ trực", path: "/patient/xem-bac-si-truc" }
   ];
 
   return (
@@ -204,6 +205,8 @@ const Navbar = () => {
               >
                 Đặt lịch ngay
               </button>
+
+              
 
             </div>
           </div>
