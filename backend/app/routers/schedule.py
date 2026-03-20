@@ -1,3 +1,4 @@
+import logging
 from typing import List, Dict, Optional
 from datetime import date, timedelta
 from dateutil.parser import parse as parse_date
@@ -5,6 +6,7 @@ import re
 import traceback
 import pandas as pd
 from io import BytesIO
+from datetime import datetime  # ← thêm dòng này
 
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
@@ -14,25 +16,37 @@ from database import get_db
 from models.lophoc import LopHoc
 from models.lichhoc import LichHoc
 from models.chitietlichhoc import ChiTietLichHoc
-from models.bacsi import BacSi     # import model BacSi
-from models.lophoc import LopHoc   # nếu muốn join lấy tên lớp
+from models.bacsi import BacSi
+from models.lophoc import LopHoc
+
+# Thiết lập logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/schedule", tags=["Schedule"])
 
 DAY_MAP = {
-    "Thứ Hai": 1,
-    "Thứ Ba": 2,
-    "Thứ Tư": 3,
-    "Thứ Năm": 4,
-    "Thứ Sáu": 5,
-    "Thứ Bảy": 6,
-    "Chủ Nhật": 7
+    "Thứ Hai": 1, "Thứ Ba": 2, "Thứ Tư": 3, "Thứ Năm": 4, "Thứ Sáu": 5,
+    "Thứ Bảy": 6, "Chủ Nhật": 7
 }
-
 
 # ────────────────────────────────────────────────
 #                Helper Functions
 # ────────────────────────────────────────────────
+def normalize_ca(ca: Optional[str]) -> str:
+    if not ca:
+        return "Cả ngày"
+    c = ca.lower().strip()
+
+    if "sáng" in c:
+        return "Sáng"
+    if "chiều" in c:
+        return "Chiều"
+    return "Cả ngày"
 
 def clean_class_name(raw) -> Optional[str]:
     if pd.isna(raw):
@@ -46,9 +60,12 @@ def clean_class_name(raw) -> Optional[str]:
 
     ignore_keywords = ["ghi chú", "nơi nhận", "- ban", "- các khoa", "- lưu", "lưu vt"]
     if any(first_line.startswith(kw) for kw in ignore_keywords) or first_line.startswith("-"):
+        logger.debug(f"Bỏ qua dòng không hợp lệ (ghi chú hoặc header): {first_line}")
         return None
 
-    return re.sub(r'\s+', ' ', lines[0].strip())
+    cleaned = re.sub(r'\s+', ' ', lines[0].strip())
+    logger.debug(f"Tên lớp sau clean: '{cleaned}'")
+    return cleaned
 
 
 def determine_ca_hoc(text: str) -> Optional[str]:
@@ -65,6 +82,7 @@ def determine_ca_hoc(text: str) -> Optional[str]:
     if any(kw in t for kw in ["giảng bài", "thi ", "nghỉ", "học lại"]):
         return "Cả ngày"
 
+    logger.debug(f"Không xác định được ca học từ: '{text}'")
     return None
 
 
@@ -83,7 +101,6 @@ def parse_cell_content(value) -> tuple[Optional[str], Optional[str], Optional[st
 
     giang_vien = None
 
-    # Tìm giảng viên (ưu tiên từ dòng thứ 2 trở đi)
     title_prefixes = [
         "ts.", "th.s.", "ths.", "pgs.", "gs.", "bs.", "bs ck", "ckii", "ck i", "ck ii",
         "bác sĩ", "dr.", "dr ", "bs ", "gv.", "giảng viên", "thầy ", "cô ", "p.gs.", "p gs"
@@ -98,20 +115,21 @@ def parse_cell_content(value) -> tuple[Optional[str], Optional[str], Optional[st
 
     for i, line in enumerate(lines):
         line_lower = line.lower().strip()
-
         has_title = any(p in line_lower for p in title_prefixes)
         looks_like_name = bool(name_pattern.match(line))
 
         if (has_title or (looks_like_name and i >= 1)) and len(line.split()) >= 2:
             giang_vien = line.strip()
+            logger.info(f"Phát hiện giảng viên/bác sĩ (dòng {i+1}): {giang_vien}")
             break
 
-    # Fallback: dòng thứ 2 nếu trông giống tên
     if not giang_vien and len(lines) >= 2:
         potential = lines[1].strip()
         if len(potential.split()) >= 2 and not any(w in potential.lower() for w in ['sáng', 'chiều', 'cả ngày', 'nghỉ', 'thi', 'phòng', 'lớp']):
             giang_vien = potential
+            logger.info(f"Fallback - giảng viên từ dòng 2: {giang_vien}")
 
+    logger.debug(f"Parse cell: mon_hoc='{full_content[:50]}...', giang_vien='{giang_vien}', ca_hoc='{ca_hoc}'")
     return full_content.strip(), giang_vien, ca_hoc
 
 
@@ -119,7 +137,9 @@ def find_valid_sheet(excel: pd.ExcelFile) -> Optional[tuple[str, pd.DataFrame]]:
     for sheet in excel.sheet_names:
         df = pd.read_excel(excel, sheet_name=sheet, header=None, engine="openpyxl")
         if df.shape[0] > 10 and df.shape[1] > 6:
+            logger.info(f"Tìm thấy sheet hợp lệ: {sheet} (rows={df.shape[0]}, cols={df.shape[1]})")
             return sheet, df
+    logger.warning("Không tìm thấy sheet nào hợp lệ")
     return None
 
 
@@ -127,7 +147,9 @@ def find_header_row(df_raw: pd.DataFrame) -> Optional[int]:
     for i in range(min(20, len(df_raw))):
         row_str = df_raw.iloc[i].astype(str).str.lower()
         if "stt" in row_str.values and "lớp" in row_str.values:
+            logger.info(f"Tìm thấy header ở dòng {i}")
             return i
+    logger.warning("Không tìm thấy header chứa 'STT' và 'Lớp'")
     return None
 
 
@@ -138,28 +160,30 @@ def find_header_row(df_raw: pd.DataFrame) -> Optional[int]:
 @router.post("/upload")
 async def upload_schedule(
     file: UploadFile = File(...),
-    week_start: str = Query(..., description="Ngày bắt đầu tuần (dd/mm/yyyy)"),
-    week_end: str = Query(..., description="Ngày kết thúc tuần (dd/mm/yyyy)"),
+    week_start: str = Query(...),
+    week_end: str = Query(...),
     hoc_ky: int = Query(1, ge=1, le=3),
     nam_hoc: str = Query("2025-2026"),
     db: Session = Depends(get_db)
 ):
+    logger.info(f"Bắt đầu upload lịch tuần: {week_start} → {week_end}")
     try:
         start_date = parse_date(week_start, dayfirst=True).date()
         end_date = parse_date(week_end, dayfirst=True).date()
+        logger.info(f"Parsed: start={start_date}, end={end_date}")
 
         if start_date > end_date:
             raise HTTPException(400, detail="Ngày bắt đầu phải trước hoặc bằng ngày kết thúc")
 
-        # Xóa lịch cũ nếu trùng tuần
+        # Xóa lịch cũ
         existing = db.query(LichHoc).filter(
             and_(LichHoc.ngay_bat_dau == start_date, LichHoc.ngay_ket_thuc == end_date)
         ).first()
         if existing:
+            logger.info(f"Xóa lịch cũ ID={existing.id_lichhoc}")
             db.delete(existing)
             db.flush()
 
-        # Tạo LichHoc mới
         lich = LichHoc(
             hoc_ky=hoc_ky,
             nam_hoc=nam_hoc,
@@ -169,8 +193,8 @@ async def upload_schedule(
         )
         db.add(lich)
         db.flush()
+        logger.info(f"Tạo LichHoc mới ID={lich.id_lichhoc}")
 
-        # Đọc file Excel
         content = await file.read()
         excel = pd.ExcelFile(BytesIO(content), engine="openpyxl")
 
@@ -179,18 +203,11 @@ async def upload_schedule(
             raise HTTPException(400, detail="Không tìm thấy sheet hợp lệ")
 
         used_sheet, df_raw = sheet_info
-
         header_row = find_header_row(df_raw)
         if header_row is None:
             raise HTTPException(400, detail="Không tìm thấy header chứa 'STT' và 'Lớp'")
 
-        df = pd.read_excel(
-            BytesIO(content),
-            sheet_name=used_sheet,
-            header=header_row,
-            engine="openpyxl"
-        )
-
+        df = pd.read_excel(BytesIO(content), sheet_name=used_sheet, header=header_row, engine="openpyxl")
         df.columns = df.columns.astype(str).str.strip().str.replace(r'\s+', ' ', regex=True)
 
         stt_col = next((c for c in df.columns if "stt" in c.lower()), None)
@@ -199,24 +216,24 @@ async def upload_schedule(
         if not stt_col or not class_col:
             raise HTTPException(400, detail="Không tìm thấy cột STT hoặc Lớp")
 
-        # Forward fill các cột cần thiết
         df[stt_col] = df[stt_col].ffill()
         df[class_col] = df[class_col].ffill()
         for day in DAY_MAP:
             if day in df.columns:
                 df[day] = df[day].ffill()
 
-        # Lọc bỏ dòng không hợp lệ
         df = df[
             df[class_col].notna() &
             df[class_col].str.strip().str.len() > 0 &
             (~df[class_col].str.lower().str.startswith(tuple(["ghi chú", "nơi nhận", "-"])))
         ].reset_index(drop=True)
 
+        logger.info(f"Số dòng dữ liệu sau lọc: {len(df)}")
+
         insert_count = 0
         skipped = 0
 
-        for _, row in df.iterrows():
+        for idx, row in df.iterrows():
             class_name = clean_class_name(row[class_col])
             if not class_name:
                 continue
@@ -226,6 +243,7 @@ async def upload_schedule(
                 lop = LopHoc(ten_lop=class_name)
                 db.add(lop)
                 db.flush()
+                logger.info(f"Tạo lớp mới: {class_name} (ID={lop.id_lophoc})")
 
             for day_str, thoidem_id in DAY_MAP.items():
                 if day_str not in df.columns:
@@ -246,7 +264,6 @@ async def upload_schedule(
                 mon_hoc = mon_hoc.strip()
                 giang_vien = giang_vien.strip() if giang_vien else None
 
-                # Kiểm tra trùng lặp
                 existing_ct = db.query(ChiTietLichHoc).filter(
                     and_(
                         ChiTietLichHoc.id_lichhoc == lich.id_lichhoc,
@@ -261,12 +278,13 @@ async def upload_schedule(
 
                 if existing_ct:
                     skipped += 1
+                    logger.debug(f"Bỏ qua trùng lặp: {class_name} - {ca_hoc} - {mon_hoc} - {giang_vien}")
                     continue
 
                 ct = ChiTietLichHoc(
                     id_lichhoc=lich.id_lichhoc,
                     id_lophoc=lop.id_lophoc,
-                    id_phong=None,  # sẽ bổ sung sau nếu cần
+                    id_phong=None,
                     id_thoidem=thoidem_id,
                     mon_hoc=mon_hoc,
                     giang_vien=giang_vien,
@@ -274,8 +292,10 @@ async def upload_schedule(
                 )
                 db.add(ct)
                 insert_count += 1
+                logger.info(f"Thêm chi tiết: {class_name} - {ca_hoc} - {mon_hoc} - GV: {giang_vien}")
 
         db.commit()
+        logger.info(f"Upload hoàn tất: inserted={insert_count}, skipped={skipped}")
 
         return {
             "message": "Upload lịch học thành công",
@@ -286,88 +306,8 @@ async def upload_schedule(
 
     except Exception as e:
         db.rollback()
-        traceback.print_exc()
+        logger.error(f"Lỗi upload: {str(e)}", exc_info=True)
         raise HTTPException(500, detail=f"Lỗi upload: {str(e)}")
-
-
-@router.get("/week/exists")
-def check_week_exists(
-    start: str = Query(...),
-    end: str = Query(...),
-    db: Session = Depends(get_db)
-):
-    try:
-        start_date = parse_date(start, dayfirst=True).date()
-        end_date = parse_date(end, dayfirst=True).date()
-    except Exception:
-        raise HTTPException(400, detail="Định dạng ngày không hợp lệ (dd/mm/yyyy)")
-
-    exists = db.query(LichHoc).filter(
-        and_(LichHoc.ngay_bat_dau == start_date, LichHoc.ngay_ket_thuc == end_date)
-    ).first() is not None
-
-    return {"exists": exists}
-
-
-@router.delete("/week")
-def delete_week(
-    start: str = Query(...),
-    end: str = Query(...),
-    db: Session = Depends(get_db)
-):
-    try:
-        start_date = parse_date(start, dayfirst=True).date()
-        end_date = parse_date(end, dayfirst=True).date()
-    except Exception:
-        raise HTTPException(400, detail="Định dạng ngày không hợp lệ (dd/mm/yyyy)")
-
-    lich = db.query(LichHoc).filter(
-        and_(LichHoc.ngay_bat_dau == start_date, LichHoc.ngay_ket_thuc == end_date)
-    ).first()
-
-    if not lich:
-        raise HTTPException(404, detail="Không tìm thấy lịch tuần này")
-
-    db.delete(lich)  # cascade delete chi tiết
-    db.commit()
-
-    return {"message": "Đã xóa lịch tuần thành công"}
-
-
-@router.get("/class/{class_id}")
-def get_class_schedule(
-    class_id: int,
-    start: Optional[str] = Query(None, description="Ngày bắt đầu tuần (dd/mm/yyyy)"),
-    end: Optional[str] = Query(None, description="Ngày kết thúc tuần (dd/mm/yyyy)"),
-    db: Session = Depends(get_db)
-):
-    query = db.query(ChiTietLichHoc).filter(ChiTietLichHoc.id_lophoc == class_id)
-
-    if start and end:
-        try:
-            start_date = parse_date(start, dayfirst=True).date()
-            end_date = parse_date(end, dayfirst=True).date()
-            query = query.join(LichHoc).filter(
-                and_(
-                    LichHoc.ngay_bat_dau == start_date,
-                    LichHoc.ngay_ket_thuc == end_date
-                )
-            )
-        except Exception:
-            raise HTTPException(400, detail="Định dạng ngày không hợp lệ (dd/mm/yyyy)")
-
-    records = query.order_by(ChiTietLichHoc.id_thoidem, ChiTietLichHoc.ca_hoc).all()
-
-    return [
-        {
-            "thu": r.id_thoidem,
-            "ca_hoc": r.ca_hoc,
-            "mon_hoc": r.mon_hoc,
-            "giang_vien": r.giang_vien,
-            "phong": r.id_phong  # None hiện tại
-        }
-        for r in records
-    ]
 
 
 # ────────────────────────────────────────────────
@@ -375,10 +315,12 @@ def get_class_schedule(
 # ────────────────────────────────────────────────
 
 def get_doctors_on_duty_logic(db: Session, target_date_str: str) -> Dict:
+    logger.info(f"Query bác sĩ trực ngày: {target_date_str}")
     try:
         target_date = parse_date(target_date_str, dayfirst=True).date()
-    except Exception:
-        return {"ngay": target_date_str, "bac_si": []}
+    except Exception as e:
+        logger.warning(f"Parse ngày thất bại: {target_date_str} - {e}")
+        return {"ngay": target_date_str, "ca_truc": {}}
 
     lich = db.query(LichHoc).filter(
         and_(
@@ -388,9 +330,13 @@ def get_doctors_on_duty_logic(db: Session, target_date_str: str) -> Dict:
     ).order_by(LichHoc.ngay_bat_dau.desc()).first()
 
     if not lich:
-        return {"ngay": target_date_str, "bac_si": []}
+        logger.info(f"Không tìm thấy tuần chứa ngày {target_date_str}")
+        return {"ngay": target_date_str, "ca_truc": {}}
+
+    logger.info(f"Tìm thấy LichHoc ID={lich.id_lichhoc} - {lich.ten_tuan}")
 
     thu = target_date.isoweekday()
+    logger.debug(f"Thứ trong tuần: {thu} ({target_date.strftime('%A')})")
 
     records = db.query(
         ChiTietLichHoc.giang_vien.label("bac_si"),
@@ -404,112 +350,28 @@ def get_doctors_on_duty_logic(db: Session, target_date_str: str) -> Dict:
         ChiTietLichHoc.giang_vien != ""
     ).all()
 
-    result: Dict[str, Dict[str, List[Dict]]] = {}
+    logger.info(f"Tìm thấy {len(records)} bản ghi bác sĩ trực ngày {target_date_str}")
+
+    result = {"Sáng": [], "Chiều": [], "Cả ngày": []}
+
     for r in records:
-        bs = r.bac_si.strip()
-        ca = r.ca or "Cả ngày"
+        ca = normalize_ca(r.ca)
+        entry = {
+            "bac_si": r.bac_si.strip(),
+            "lop": r.lop.strip(),
+            "mon": (r.mon or "").strip()
+        }
+        result[ca].append(entry)
+        logger.debug(f"Thêm: {ca} - {entry['bac_si']} - {entry['lop']} - {entry['mon']}")
 
-        if bs not in result:
-            result[bs] = {}
-        if ca not in result[bs]:
-            result[bs][ca] = []
-
-        result[bs][ca].append({
-            "mon": (r.mon or "").strip(),
-            "lop": r.lop.strip()
-        })
-
-    formatted = []
-    for bs, groups in result.items():
-        for ca, items in groups.items():
-            formatted.append({
-                "bac_si": bs,
-                "ca": ca,
-                "so_lop": len(items),
-                "chi_tiet": items
-            })
+    result = {k: v for k, v in result.items() if v}
 
     return {
         "ngay": target_date_str,
         "thu": f"Thứ {thu}",
         "tuan": lich.ten_tuan,
-        "tong_bac_si": len(result),
-        "bac_si": sorted(formatted, key=lambda x: (x["ca"] or "", x["bac_si"]))
-    }
-
-
-@router.get("/doctors/on-duty/{target_date}")
-def get_doctors_on_duty(
-    target_date: str,
-    ca: Optional[str] = Query(None, description="Sáng / Chiều / Cả ngày"),
-    db: Session = Depends(get_db)
-):
-    data = get_doctors_on_duty_logic(db, target_date)
-
-    if ca:
-        ca_norm = ca.strip().title()
-        if ca_norm not in ["Sáng", "Chiều", "Cả Ngày", "Cả ngày"]:
-            raise HTTPException(400, detail="Ca không hợp lệ")
-        data["bac_si"] = [item for item in data["bac_si"] if item["ca"] == ca_norm]
-
-    return data
-
-@router.get("/doctors/current-and-next")
-def get_current_and_next_doctors(
-    days_ahead: int = Query(3, ge=1, le=10, description="Số ngày tới cần lấy (mặc định 3)"),
-    db: Session = Depends(get_db)
-):
-    today = date.today()
-    dates = [today + timedelta(days=i) for i in range(days_ahead + 1)]
-
-    current = []
-    upcoming = []
-
-    for target_date in dates:
-        date_str = target_date.strftime("%d/%m/%Y")
-        data = get_doctors_on_duty_logic(db, date_str)
-
-        for item in data.get("bac_si", []):
-            ca = item["ca"]
-            if ca is None or ca.strip() == "":
-                ca = "Cả ngày"
-
-            # Chuẩn hóa tên ca (để frontend dễ so sánh)
-            ca_norm = ca.strip().title()  # → "Sáng", "Chiều", "Cả Ngày"
-
-            entry = {
-                "ten_bac_si": item["bac_si"].strip(),
-                "ca_truc": ca_norm,                     # ← dùng tên đã chuẩn hóa
-                "ngay": date_str,
-                "chuyen_khoa": "Giảng viên / Trực khoa",
-                "sdt": None,          # sau này join với BacSi nếu cần
-                "email": None,
-                "avatar": None,
-                "ghi_chu": ", ".join(f"{c['lop']} - {c['mon']}" for c in item["chi_tiet"]),
-                # Thời gian cố định theo ca – có thể cải thiện sau nếu có giờ thực tế
-                "thoi_gian_bat_dau": "07:00" if ca_norm == "Sáng" else "13:00" if ca_norm == "Chiều" else "07:00",
-                "thoi_gian_ket_thuc": "12:00" if ca_norm == "Sáng" else "17:00" if ca_norm == "Chiều" else "17:00",
-            }
-
-            if target_date == today:
-                current.append(entry)
-            else:
-                upcoming.append(entry)
-
-    # Sort current: ưu tiên đang trực (có thể thêm logic isActive ở backend nếu muốn)
-    # Sort upcoming: theo ngày → ca (Sáng > Chiều > Cả ngày)
-    sort_ca = {"Sáng": 0, "Chiều": 1, "Cả Ngày": 2, "Cả ngày": 2}
-    upcoming.sort(key=lambda x: (
-        datetime.strptime(x["ngay"], "%d/%m/%Y"),
-        sort_ca.get(x["ca_truc"], 999)
-    ))
-
-    return {
-        "ngay_hien_tai": today.strftime("%d/%m/%Y"),
-        "current": current,
-        "next": upcoming,
-        "total_current": len(current),
-        "total_next": len(upcoming)
+        "tong_bac_si": len({r.bac_si for r in records}),
+        "ca_truc": result
     }
 
 @router.get("/doctors/all")
@@ -530,3 +392,67 @@ def get_all_doctors(db: Session = Depends(get_db)):
     ]
     
     return {"total": len(result), "doctors": result}
+@router.get("/doctors/on-duty")
+def get_doctors_on_duty(
+    date: str = Query(...),
+    ca: Optional[str] = Query(None),
+    db: Session = Depends(get_db)
+):
+    logger.info(f"API /doctors/on-duty gọi với date={date}, ca={ca}")
+    data = get_doctors_on_duty_logic(db, date)
+    if ca:
+        ca_norm = normalize_ca(ca)
+        data["ca_truc"] = {k: v for k, v in data.get("ca_truc", {}).items() if k == ca_norm}
+        logger.info(f"Lọc theo ca: {ca_norm} → còn {sum(len(v) for v in data['ca_truc'].values())} bản ghi")
+    return data
+
+
+@router.get("/doctors/current-and-next")
+def get_current_and_next_doctors(
+    days_ahead: int = Query(3, ge=1, le=10),
+    db: Session = Depends(get_db)
+):
+    today = date.today()
+    logger.info(f"API current-and-next gọi, days_ahead={days_ahead}, today={today}")
+
+    dates = [today + timedelta(days=i) for i in range(days_ahead + 1)]
+    current = []
+    upcoming = []
+
+    for target_date in dates:
+        date_str = target_date.strftime("%d/%m/%Y")
+        logger.debug(f"Xử lý ngày: {date_str}")
+        data = get_doctors_on_duty_logic(db, date_str)
+
+        for ca, doctors in data.get("ca_truc", {}).items():
+            for doc in doctors:
+                entry = {
+                    "ten_bac_si": doc["bac_si"],
+                    "ca_truc": ca,
+                    "ngay": date_str,
+                    "thu": data["thu"],
+                    "mon": doc["mon"],
+                    "lop": doc["lop"],
+                    "ghi_chu": f"{doc['lop']} - {doc['mon']}",
+                    "thoi_gian_bat_dau": "07:00" if ca == "Sáng" else "13:00" if ca == "Chiều" else "07:00",
+                    "thoi_gian_ket_thuc": "12:00" if ca == "Sáng" else "17:00" if ca == "Chiều" else "17:00",
+                }
+                if target_date == today:
+                    current.append(entry)
+                else:
+                    upcoming.append(entry)
+
+    sort_ca = {"Sáng": 0, "Chiều": 1, "Cả ngày": 2}
+    upcoming.sort(key=lambda x: (
+        datetime.strptime(x["ngay"], "%d/%m/%Y"),
+        sort_ca.get(x["ca_truc"], 999)
+    ))
+
+    logger.info(f"Trả về: current={len(current)}, upcoming={len(upcoming)}")
+    return {
+        "ngay_hien_tai": today.strftime("%d/%m/%Y"),
+        "current": current,
+        "next": upcoming,
+        "total_current": len(current),
+        "total_next": len(upcoming)
+    }
