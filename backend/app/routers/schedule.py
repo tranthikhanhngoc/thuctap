@@ -406,6 +406,97 @@ def get_doctors_on_duty(
         logger.info(f"Lọc theo ca: {ca_norm} → còn {sum(len(v) for v in data['ca_truc'].values())} bản ghi")
     return data
 
+def get_doctors_on_duty_logic(db: Session, target_date_str: str) -> Dict:
+    logger.info(f"Query bác sĩ trực ngày: {target_date_str}")
+    try:
+        target_date = parse_date(target_date_str, dayfirst=True).date()
+    except Exception as e:
+        logger.warning(f"Parse ngày thất bại: {target_date_str} - {e}")
+        return {"ngay": target_date_str, "ca_truc": {}}
+
+    # 1. Tìm tuần chứa ngày
+    lich = db.query(LichHoc).filter(
+        and_(
+            LichHoc.ngay_bat_dau <= target_date,
+            LichHoc.ngay_ket_thuc >= target_date
+        )
+    ).order_by(LichHoc.ngay_bat_dau.desc()).first()
+
+    if not lich:
+        logger.info(f"Không tìm thấy tuần chứa ngày {target_date_str}")
+        return {"ngay": target_date_str, "ca_truc": {}}
+
+    logger.info(f"Tìm thấy LichHoc ID={lich.id_lichhoc} - {lich.ten_tuan}")
+
+    thu = target_date.isoweekday()
+    logger.debug(f"Thứ trong tuần: {thu}")
+
+    # 2. Tìm tất cả lớp có lịch ngày đó (có id_thoidem == thu)
+    lich_hoc_records = db.query(
+        ChiTietLichHoc.id_lophoc,
+        ChiTietLichHoc.ca_hoc,
+        ChiTietLichHoc.mon_hoc
+    ).filter(
+        ChiTietLichHoc.id_lichhoc == lich.id_lichhoc,
+        ChiTietLichHoc.id_thoidem == thu
+    ).all()
+
+    if not lich_hoc_records:
+        logger.info(f"Không có lớp nào có lịch ngày {target_date_str}")
+        return {"ngay": target_date_str, "ca_truc": {}}
+
+    logger.info(f"Tìm thấy {len(lich_hoc_records)} lớp có lịch ngày {target_date_str}")
+
+    # 3. Group lớp theo ca_hoc
+    lop_theo_ca = {"Sáng": [], "Chiều": [], "Cả ngày": []}
+    for rec in lich_hoc_records:
+        ca = normalize_ca(rec.ca_hoc)
+        lop_theo_ca[ca].append({
+            "id_lophoc": rec.id_lophoc,
+            "mon_hoc": rec.mon_hoc or "—"
+        })
+
+    # 4. Query bác sĩ theo các lớp có lịch
+    result = {"Sáng": [], "Chiều": [], "Cả ngày": []}
+    tong_bac_si = set()
+
+    for ca, lops in lop_theo_ca.items():
+        if not lops:
+            continue
+
+        id_lophocs = [lop["id_lophoc"] for lop in lops]
+        bacsi_list = db.query(BacSi).filter(
+            BacSi.id_lophoc.in_(id_lophocs)
+        ).all()
+
+        for bs in bacsi_list:
+            # Tìm môn/lớp tương ứng để ghi chú
+            ghi_chu_parts = []
+            for lop_info in lops:
+                if lop_info["id_lophoc"] == bs.id_lophoc:
+                    ghi_chu_parts.append(f"{lop_info['mon_hoc']} - Lớp {bs.lophoc.ten_lop if bs.lophoc else '—'}")
+
+            entry = {
+                "bac_si": bs.ho_ten.strip() if bs.ho_ten else "Chưa có tên",
+                "lop": bs.lophoc.ten_lop if bs.lophoc else "—",
+                "mon": ", ".join(set(ghi_chu_parts)) if ghi_chu_parts else "—",
+                "chuyen_khoa": bs.chuyen_khoa or "—",
+                "sdt": bs.so_dien_thoai or "—",
+                "email": bs.email or "—",
+            }
+            result[ca].append(entry)
+            tong_bac_si.add(bs.id_bacsi)
+
+    result = {k: v for k, v in result.items() if v}
+
+    return {
+        "ngay": target_date_str,
+        "thu": f"Thứ {thu}",
+        "tuan": lich.ten_tuan,
+        "tong_bac_si": len(tong_bac_si),
+        "ca_truc": result
+    }
+
 
 @router.get("/doctors/current-and-next")
 def get_current_and_next_doctors(
@@ -421,7 +512,6 @@ def get_current_and_next_doctors(
 
     for target_date in dates:
         date_str = target_date.strftime("%d/%m/%Y")
-        logger.debug(f"Xử lý ngày: {date_str}")
         data = get_doctors_on_duty_logic(db, date_str)
 
         for ca, doctors in data.get("ca_truc", {}).items():
@@ -433,7 +523,10 @@ def get_current_and_next_doctors(
                     "thu": data["thu"],
                     "mon": doc["mon"],
                     "lop": doc["lop"],
-                    "ghi_chu": f"{doc['lop']} - {doc['mon']}",
+                    "chuyen_khoa": doc.get("chuyen_khoa", "—"),
+                    "sdt": doc.get("sdt", "—"),
+                    "email": doc.get("email", "—"),
+                    "ghi_chu": doc["mon"],
                     "thoi_gian_bat_dau": "07:00" if ca == "Sáng" else "13:00" if ca == "Chiều" else "07:00",
                     "thoi_gian_ket_thuc": "12:00" if ca == "Sáng" else "17:00" if ca == "Chiều" else "17:00",
                 }
