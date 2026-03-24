@@ -7,3 +7,4 @@ from .chitietlichhoc import ChiTietLichHoc
 from .lichhoc import LichHoc
 from .phonghoc import PhongHoc
 from .thoidiem import ThoiDiem 
+from .thuoc import Thuoc

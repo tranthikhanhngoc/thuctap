@@ -4,6 +4,7 @@ from .benhnhan import router
 from .lophocs import router
 from .schedule import router
 from .cuoc_hen  import router
+from .thuoc import router
 
 
 __all__ = ["router"]

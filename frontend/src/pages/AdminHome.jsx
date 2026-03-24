@@ -58,6 +58,12 @@ const AdminHome = () => {
           >
             <span className="text-xl">📚</span> Quản lý Lịch học
           </button>
+          <button
+            onClick={() => navigate("/admin/quan-ly-thuoc")}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-pink-50 hover:text-pink-600 transition"
+          >
+            <span className="text-xl"></span> Quản lý thuốc
+          </button>
         </nav>
 
         <div className="absolute bottom-8 left-4 right-4">

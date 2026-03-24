@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
+/**
+ * Component hiển thị thông tin bác sĩ trực và danh sách bác sĩ
+ * Đồng bộ thiết kế với trang Danh sách thuốc (tone hồng chủ đạo)
+ */
 const XemBacSiTruc = () => {
+  // ==================== STATE ====================
   const [currentDoctors, setCurrentDoctors] = useState([]);
   const [nextDoctors, setNextDoctors] = useState([]);
   const [allDoctors, setAllDoctors] = useState([]);
@@ -12,6 +17,10 @@ const XemBacSiTruc = () => {
 
   const API_BASE = "http://127.0.0.1:8000";
 
+  // ==================== HELPER FUNCTIONS ====================
+  /**
+   * Kiểm tra bác sĩ có đang trực không dựa trên thời gian hiện tại
+   */
   const isDoctorActive = (doc) => {
     if (!doc.ngay || !doc.thoi_gian_bat_dau || !doc.thoi_gian_ket_thuc) return false;
 
@@ -33,6 +42,7 @@ const XemBacSiTruc = () => {
     return now >= start && now < end;
   };
 
+  // ==================== API CALLS ====================
   const fetchData = async () => {
     setLoading(true);
     setError(null);
@@ -69,20 +79,22 @@ const XemBacSiTruc = () => {
     }
   };
 
+  // ==================== SIDE EFFECTS ====================
   useEffect(() => {
     fetchData();
-    const interval = setInterval(fetchData, 5 * 60 * 1000);
+    const interval = setInterval(fetchData, 5 * 60 * 1000); // Cập nhật mỗi 5 phút
     return () => clearInterval(interval);
   }, []);
 
+  // ==================== DOCTOR CARD COMPONENT ====================
   const DoctorCard = ({ doc, isAll = false }) => {
-    const statusBg = doc.isActive ? "bg-green-500" : "bg-gray-400";
+    const statusBg = doc.isActive ? "bg-emerald-500" : "bg-gray-400";
     const statusText = doc.isActive ? "ĐANG TRỰC" : "SẮP TỚI";
 
     return (
       <div className="group bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-pink-100">
-        {/* Header gradient hồng-tím */}
-        <div className="relative h-40 bg-gradient-to-br from-pink-500 via-purple-500 to-indigo-600">
+        {/* Header với gradient hồng */}
+        <div className="relative h-40 bg-gradient-to-br from-pink-500 to-pink-600">
           <div className="absolute -bottom-12 left-6">
             <img
               src={doc.avatar || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"}
@@ -103,17 +115,17 @@ const XemBacSiTruc = () => {
           </div>
         </div>
 
-        {/* Nội dung */}
+        {/* Nội dung card */}
         <div className="pt-16 px-6 pb-6">
           <h3 className="text-2xl font-bold text-gray-900 truncate">{doc.ten_bac_si || "Chưa xác định"}</h3>
-          <p className="text-base text-purple-700 font-medium mt-1">{doc.chuyen_khoa || "Khoa lâm sàng / Trực khoa"}</p>
+          <p className="text-base text-pink-700 font-medium mt-1">{doc.chuyen_khoa || "Khoa lâm sàng / Trực khoa"}</p>
 
           {!isAll && (
             <div className="mt-3 flex items-center gap-2 text-sm text-gray-600">
               <span className="font-medium">{doc.ca_truc}</span>
               <span>•</span>
               <span>{doc.ngay}</span>
-              {doc.isActive && <span className="text-green-600 font-semibold ml-2">(Đang trực)</span>}
+              {doc.isActive && <span className="text-emerald-600 font-semibold ml-2">(Đang trực)</span>}
             </div>
           )}
 
@@ -133,8 +145,8 @@ const XemBacSiTruc = () => {
             )}
             {doc.email && (
               <p className="flex items-center gap-2">
-                <span className="text-purple-600 text-lg">✉️</span>
-                <a href={`mailto:${doc.email}`} className="hover:text-purple-600 transition break-all">
+                <span className="text-pink-600 text-lg">✉️</span>
+                <a href={`mailto:${doc.email}`} className="hover:text-pink-600 transition break-all">
                   {doc.email}
                 </a>
               </p>
@@ -143,11 +155,11 @@ const XemBacSiTruc = () => {
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-5 bg-pink-50/50 border-t flex gap-4">
+        <div className="px-6 py-5 bg-pink-50 border-t border-pink-100 flex gap-4">
           {doc.sdt && (
             <a
               href={`tel:${doc.sdt.replace(/\s+/g, "")}`}
-              className="flex-1 text-center py-3 bg-pink-600 hover:bg-pink-700 text-white font-semibold rounded-xl transition shadow-md"
+              className="flex-1 text-center py-3 bg-pink-600 hover:bg-pink-700 text-white font-semibold rounded-2xl transition shadow-md"
             >
               Gọi ngay
             </a>
@@ -155,7 +167,7 @@ const XemBacSiTruc = () => {
           {doc.email && (
             <a
               href={`mailto:${doc.email}`}
-              className="flex-1 text-center py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl transition shadow-md"
+              className="flex-1 text-center py-3 bg-pink-600 hover:bg-pink-700 text-white font-semibold rounded-2xl transition shadow-md"
             >
               Gửi email
             </a>
@@ -163,7 +175,7 @@ const XemBacSiTruc = () => {
           {!doc.sdt && !doc.email && (
             <button
               disabled
-              className="flex-1 py-3 bg-gray-300 text-gray-500 font-semibold rounded-xl cursor-not-allowed"
+              className="flex-1 py-3 bg-gray-300 text-gray-500 font-semibold rounded-2xl cursor-not-allowed"
             >
               Chưa có liên hệ
             </button>
@@ -173,11 +185,12 @@ const XemBacSiTruc = () => {
     );
   };
 
+  // ==================== RENDER CONTENT ====================
   const renderContent = () => {
     if (loading) {
       return (
         <div className="flex flex-col items-center justify-center py-40">
-          <div className="animate-spin rounded-full h-20 w-20 border-t-4 border-pink-500 border-b-4 border-purple-300"></div>
+          <div className="animate-spin rounded-full h-20 w-20 border-t-4 border-pink-500 border-b-4 border-pink-200"></div>
           <p className="mt-8 text-2xl font-medium text-gray-700">Đang tải danh sách bác sĩ...</p>
         </div>
       );
@@ -219,7 +232,7 @@ const XemBacSiTruc = () => {
 
     return (
       <>
-        <h2 className="text-4xl sm:text-5xl font-extrabold mb-12 text-center bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+        <h2 className="text-4xl sm:text-5xl font-extrabold mb-12 text-center text-gray-800">
           {title}
         </h2>
 
@@ -236,18 +249,28 @@ const XemBacSiTruc = () => {
     );
   };
 
+  // ==================== MAIN RENDER ====================
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-10">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-16">
-          <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent mb-6">
-            Bác Sĩ Trực & Danh Sách
-          </h1>
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-pink-50 py-12 px-4 sm:px-6 lg:px-10 relative overflow-hidden">
+      {/* Background accent */}
+      <div className="absolute inset-0 -z-10 opacity-30 pointer-events-none">
+        <div className="absolute top-40 right-20 w-96 h-96 bg-pink-200 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 left-20 w-80 h-80 bg-pink-100 rounded-full blur-3xl"></div>
+      </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-gray-700 text-lg">
+      <div className="max-w-7xl mx-auto">
+        {/* ==================== HEADER ==================== */}
+        <div className="text-center mb-16">
+          <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold text-gray-800 mb-6">
+            Bác Sĩ Trực
+          </h1>
+          <p className="text-gray-600 text-xl max-w-2xl mx-auto">
+            Thông tin bác sĩ đang trực và lịch trực tại phòng khám
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8 text-gray-700">
             <span>Cập nhật lúc:</span>
-            <span className="font-semibold text-purple-700">
+            <span className="font-semibold text-pink-700">
               {lastUpdated.toLocaleString("vi-VN", {
                 hour: "2-digit",
                 minute: "2-digit",
@@ -265,16 +288,16 @@ const XemBacSiTruc = () => {
           </div>
         </div>
 
-        {/* Tabs */}
+        {/* ==================== TABS ==================== */}
         <div className="flex justify-center mb-16">
-          <div className="inline-flex bg-white rounded-full shadow-xl p-2 border border-pink-200">
+          <div className="inline-flex bg-white rounded-full shadow-xl p-2 border border-pink-100">
             {["current", "next", "all"].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-10 py-4 rounded-full font-bold text-base transition-all duration-300 ${
+                className={`px-10 py-4 rounded-full font-semibold text-base transition-all duration-300 ${
                   activeTab === tab
-                    ? "bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow-lg"
+                    ? "bg-pink-600 text-white shadow-lg"
                     : "text-gray-700 hover:bg-pink-50"
                 }`}
               >
@@ -284,7 +307,7 @@ const XemBacSiTruc = () => {
           </div>
         </div>
 
-        {/* Nội dung chính */}
+        {/* ==================== MAIN CONTENT ==================== */}
         {renderContent()}
       </div>
     </div>

@@ -22,6 +22,8 @@ import Footer from "../components/footer/Footer";
 import LichKham from "../pages/Doctor/LichKham";
 import LichHoc from "../pages/Doctor/LichHoc";
 import XemBacSiTruc from "../pages/Patient/XemBacSiTruc";
+import PrescriptionManage from "../pages/Admin/PrescriptionManage";
+import XemDanhSachThuoc from "../pages/Patient/XemDanhSachThuoc";
 
 // Pages (ví dụ)
 const DatLich = () => <div className="p-6">Trang Đặt lịch</div>;
@@ -53,6 +55,7 @@ const Routers = () => {
         <Route path="/admin/quan-ly-lich-kham" element={<BookingManage />} />
         <Route path="/admin/quan-ly-bac-si" element={<AdminHome />} />
         <Route path="/admin/quan-ly-lich-hoc" element={<ScheduleManage />} />
+        <Route path="/admin/quan-ly-thuoc" element={<PrescriptionManage />} />
         {/* Logic xu ly trong trang role patient */}
         <Route path="/patient/appointment" element={<Booking />} />
         <Route path="/patient/quan-ly-benh-nhan" element={<AdminHome />} />
@@ -62,6 +65,7 @@ const Routers = () => {
         path="/patient/lich-su-dat-lich"
           element={<LichSuDatLich />}
         />
+        <Route path="/patient/xem-danh-sach-thuoc" element={<XemDanhSachThuoc />} />
         {/* Logic xu ly trong trang role bac si */}
         <Route path="/bacsi/lich-kham" element={<LichKham />} />
         <Route path="/bacsi/lich-hoc" element={<LichHoc />} />
