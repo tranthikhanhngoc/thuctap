@@ -1,5 +1,5 @@
 import logging
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Tuple   # ← THÊM Tuple vào đây
 from datetime import date, timedelta
 from dateutil.parser import parse as parse_date
 import re
@@ -38,16 +38,48 @@ DAY_MAP = {
 #                Helper Functions
 # ────────────────────────────────────────────────
 def normalize_ca(ca: Optional[str]) -> str:
+    """Chuẩn hóa ca học về 3 giá trị cố định: S., C., Cả ngày"""
     if not ca:
         return "Cả ngày"
     c = ca.lower().strip()
 
-    if "sáng" in c:
-        return "Sáng"
-    if "chiều" in c:
-        return "Chiều"
+    if "sáng" in c or "s." in c:
+        return "S."
+    if "chiều" in c or "c." in c:
+        return "C."
     return "Cả ngày"
 
+def determine_ca_hoc(text: str) -> Optional[str]:
+    """Chỉ lưu khi ô bắt đầu rõ ràng bằng S., C., hoặc Cả ngày.
+       Các ô chứa 'giảng bài', 'báo cáo', 'thi', 'nghỉ', 'mời'... dù có S./C. đi nữa cũng BỎ QUA."""
+    if not text or pd.isna(text):
+        return None
+    
+    t = str(text).lower().strip()
+
+    # === 1. BỎ QUA các hoạt động không phải ca trực (ưu tiên cao nhất) ===
+    skip_keywords = [
+        # "giảng bài", "báo cáo", "thi ", "nghỉ", "học lại", 
+        # "mời đ/c", "mời ", "phó trưởng khoa", "trưởng khoa", 
+        # "viettel", "cần thơ"
+    ]
+    if any(kw in t for kw in skip_keywords):
+        logger.debug(f"BỎ QUA cell (chứa từ khóa không lưu): {t[:100]}")
+        return None
+
+    # === 2. Chỉ chấp nhận những ô bắt đầu đúng định dạng ca ===
+    if t.startswith(("cả ngày", "cả ngày.")):
+        return "Cả ngày"
+
+    if t.startswith(("s.", "sáng")):
+        return "S."
+
+    if t.startswith(("c.", "chiều")):
+        return "C."
+
+    # Không khớp gì → bỏ qua
+    logger.debug(f"BỎ QUA cell không rõ ca: {t[:80]}")
+    return None
 def clean_class_name(raw) -> Optional[str]:
     if pd.isna(raw):
         return None
@@ -68,25 +100,8 @@ def clean_class_name(raw) -> Optional[str]:
     return cleaned
 
 
-def determine_ca_hoc(text: str) -> Optional[str]:
-    if not text:
-        return None
-    t = text.lower().strip()
-
-    if t.startswith("cả ngày"):
-        return "Cả ngày"
-    if any(p in t for p in ["s.", "sáng", "s thi", "s. thi"]):
-        return "Sáng"
-    if any(p in t for p in ["c.", "chiều", "c thi", "c. thi"]):
-        return "Chiều"
-    if any(kw in t for kw in ["giảng bài", "thi ", "nghỉ", "học lại"]):
-        return "Cả ngày"
-
-    logger.debug(f"Không xác định được ca học từ: '{text}'")
-    return None
-
-
-def parse_cell_content(value) -> tuple[Optional[str], Optional[str], Optional[str]]:
+def parse_cell_content(value) -> Tuple[Optional[str], Optional[str], Optional[str]]:
+    """Chỉ parse khi determine_ca_hoc trả về giá trị hợp lệ"""
     if pd.isna(value) or not str(value).strip():
         return None, None, None
 
@@ -96,40 +111,32 @@ def parse_cell_content(value) -> tuple[Optional[str], Optional[str], Optional[st
         return None, None, None
 
     full_content = "\n".join(lines)
-    first_line_lower = lines[0].lower().strip()
-    ca_hoc = determine_ca_hoc(first_line_lower)
+    
+    # Xác định ca - BÂY GIỜ RẤT NGHIÊM NGẶT
+    ca_hoc = determine_ca_hoc(lines[0] if lines else "")
+    
+    if ca_hoc is None:
+        logger.info(f"BỎ QUA cell: {full_content[:120]}...")  # đổi thành info để dễ thấy
+        return None, None, None
 
+    # Tìm giảng viên (giữ nguyên logic cũ)
     giang_vien = None
-
-    title_prefixes = [
-        "ts.", "th.s.", "ths.", "pgs.", "gs.", "bs.", "bs ck", "ckii", "ck i", "ck ii",
-        "bác sĩ", "dr.", "dr ", "bs ", "gv.", "giảng viên", "thầy ", "cô ", "p.gs.", "p gs"
-    ]
-
-    name_pattern = re.compile(
-        r'^[A-ZÁÀẢÃẠĂẰẲẴẶÂẤẦẨẪẬĐÉÈẺẼẸÊẾỀỂỄỆÍÌỈĨỊÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÚÙỦŨỤƯỨỪỬỮỰÝỲỶỸỴ]'
-        r'[a-záàảãạăằẳẵặâấầẩẫậđéèẻẽẹêếềểễệíìỉĩịóòỏõọôốồổỗộơớờởỡợúùủũụưứừửữựýỳỷỹỵ\s\.-]+'
-        r'\s+[A-ZÁÀẢÃẠĂẰẲẴẶÂẤẦẨẪẬĐÉÈẺẼẸÊẾỀỂỄỆÍÌỈĨỊÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỠỢÚÙỦŨỤƯỨỪỬỮỰÝỲỶỸỴ]'
-        r'[a-záàảãạăằẳẵặâấầẩẫậđéèẻẽẹêếềểễệíìỉĩịóòỏõọôốồổỗộơớờởỡợúùủũụưứừửữựýỳỷỹỵ\s\.-]+$'
-    )
+    title_prefixes = ["ts.", "th.s.", "ths.", "pgs.", "gs.", "bs.", "bác sĩ", "dr.", "gv.", "thầy ", "cô "]
 
     for i, line in enumerate(lines):
         line_lower = line.lower().strip()
-        has_title = any(p in line_lower for p in title_prefixes)
-        looks_like_name = bool(name_pattern.match(line))
-
-        if (has_title or (looks_like_name and i >= 1)) and len(line.split()) >= 2:
-            giang_vien = line.strip()
-            logger.info(f"Phát hiện giảng viên/bác sĩ (dòng {i+1}): {giang_vien}")
-            break
+        if any(p in line_lower for p in title_prefixes) or (i >= 1 and len(line.split()) >= 2):
+            potential_name = line.strip()
+            if len(potential_name.split()) >= 2:
+                giang_vien = potential_name
+                break
 
     if not giang_vien and len(lines) >= 2:
         potential = lines[1].strip()
-        if len(potential.split()) >= 2 and not any(w in potential.lower() for w in ['sáng', 'chiều', 'cả ngày', 'nghỉ', 'thi', 'phòng', 'lớp']):
+        if len(potential.split()) >= 2 and not any(w in potential.lower() for w in ['sáng','chiều','cả ngày']):
             giang_vien = potential
-            logger.info(f"Fallback - giảng viên từ dòng 2: {giang_vien}")
 
-    logger.debug(f"Parse cell: mon_hoc='{full_content[:50]}...', giang_vien='{giang_vien}', ca_hoc='{ca_hoc}'")
+    logger.debug(f"PARSE THÀNH CÔNG → Ca: {ca_hoc} | GV: {giang_vien} | Nội dung: {full_content[:60]}...")
     return full_content.strip(), giang_vien, ca_hoc
 
 
@@ -238,15 +245,17 @@ async def upload_schedule(
         if not stt_col or not class_col:
             raise HTTPException(400, detail="Không tìm thấy cột STT hoặc Lớp")
 
-        # Convert to string để tránh lỗi khi xử lý XLS file
+        # Convert sang string để an toàn
         df[class_col] = df[class_col].fillna('').astype(str)
-        
-        df[stt_col] = df[stt_col].ffill()
-        df[class_col] = df[class_col].ffill()
+        df[stt_col] = df[stt_col].fillna('').astype(str)
+
+        # === SỬA QUAN TRỌNG Ở ĐÂY: ffill + bfill cho cột ngày ===
         for day in DAY_MAP:
             if day in df.columns:
-                df[day] = df[day].ffill()
+                # ffill trước (từ trên xuống), sau đó bfill để lấp ô đầu trống
+                df[day] = df[day].ffill().bfill()
 
+        # Lọc bỏ các dòng không có tên lớp hợp lệ
         df = df[
             (df[class_col].str.strip().str.len() > 0) &
             (~df[class_col].str.lower().str.startswith(tuple(["ghi chú", "nơi nhận", "-"])))
@@ -262,6 +271,7 @@ async def upload_schedule(
             if not class_name:
                 continue
 
+            # Tạo hoặc lấy lớp
             lop = db.query(LopHoc).filter(LopHoc.ten_lop == class_name).first()
             if not lop:
                 lop = LopHoc(ten_lop=class_name)
@@ -278,16 +288,19 @@ async def upload_schedule(
                     continue
 
                 content_str = str(cell_value).strip()
-                if not content_str or content_str in {"/", ".", "-"}:
+                if not content_str or content_str in {"/", ".", "-", "nan"}:
                     continue
 
+                # Parse cell (hỗ trợ nhiều ca trong 1 ô hoặc ô có 2 dòng S. + C.)
                 mon_hoc, giang_vien, ca_hoc = parse_cell_content(content_str)
+
                 if not mon_hoc:
                     continue
 
                 mon_hoc = mon_hoc.strip()
                 giang_vien = giang_vien.strip() if giang_vien else None
 
+                # Kiểm tra trùng lặp trước khi insert
                 existing_ct = db.query(ChiTietLichHoc).filter(
                     and_(
                         ChiTietLichHoc.id_lichhoc == lich.id_lichhoc,
@@ -302,7 +315,7 @@ async def upload_schedule(
 
                 if existing_ct:
                     skipped += 1
-                    logger.debug(f"Bỏ qua trùng lặp: {class_name} - {ca_hoc} - {mon_hoc} - {giang_vien}")
+                    logger.debug(f"Bỏ qua trùng lặp: {class_name} - {ca_hoc} - {mon_hoc}")
                     continue
 
                 ct = ChiTietLichHoc(
@@ -316,7 +329,7 @@ async def upload_schedule(
                 )
                 db.add(ct)
                 insert_count += 1
-                logger.info(f"Thêm chi tiết: {class_name} - {ca_hoc} - {mon_hoc} - GV: {giang_vien}")
+                logger.info(f"Thêm: {class_name} | {day_str} | {ca_hoc} | {mon_hoc} | GV: {giang_vien or 'N/A'}")
 
         db.commit()
         logger.info(f"Upload hoàn tất: inserted={insert_count}, skipped={skipped}")
