@@ -81,11 +81,18 @@ const ScheduleManage = () => {
     setScheduleError(null);
 
     try {
-      const { data = [] } = await api.get(`/schedule/class/${classId}?start=${start}&end=${end}`);
+      const { data } = await api.get(`/schedule/class/${classId}?start=${start}&end=${end}`);
+      const scheduleArray = data.schedule || [];
       const byDay = {};
       const seen = {};
-      data.forEach(item => {
-        const thu = Number(item.thu);
+      
+      // Map day names to numeric values (Thứ Hai=1, Thứ Ba=2, etc.)
+      const dayNameMap = {
+        "Thứ Hai": 1, "Thứ Ba": 2, "Thứ Tư": 3, "Thứ Năm": 4, "Thứ Sáu": 5
+      };
+      
+      scheduleArray.forEach(item => {
+        const thu = dayNameMap[item.day] || Number(item.day);
         if (thu < 1 || thu > 5) return;
         if (!byDay[thu]) {
           byDay[thu] = [];
@@ -112,14 +119,20 @@ const ScheduleManage = () => {
     setLoadingSchedule(true);
     setScheduleError(null);
 
+    // Map day names to numeric values (Thứ Hai=1, Thứ Ba=2, etc.)
+    const dayNameMap = {
+      "Thứ Hai": 1, "Thứ Ba": 2, "Thứ Tư": 3, "Thứ Năm": 4, "Thứ Sáu": 5
+    };
+
     const allData = {};
     await Promise.allSettled(
       classes.map(async cls => {
         try {
-          const { data = [] } = await api.get(`/schedule/class/${cls.id_lophoc}?start=${start}&end=${end}`);
+          const { data } = await api.get(`/schedule/class/${cls.id_lophoc}?start=${start}&end=${end}`);
+          const scheduleArray = data.schedule || [];
           const byDay = {};
-          data.forEach(item => {
-            const thu = Number(item.thu);
+          scheduleArray.forEach(item => {
+            const thu = dayNameMap[item.day] || Number(item.day);
             if (thu >= 1 && thu <= 5) {
               (byDay[thu] ||= []).push(item);
             }

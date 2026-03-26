@@ -135,7 +135,7 @@ def parse_cell_content(value) -> tuple[Optional[str], Optional[str], Optional[st
 
 def find_valid_sheet(excel: pd.ExcelFile) -> Optional[tuple[str, pd.DataFrame]]:
     for sheet in excel.sheet_names:
-        df = pd.read_excel(excel, sheet_name=sheet, header=None, engine="openpyxl")
+        df = pd.read_excel(excel, sheet_name=sheet, header=None)
         if df.shape[0] > 10 and df.shape[1] > 6:
             logger.info(f"Tìm thấy sheet hợp lệ: {sheet} (rows={df.shape[0]}, cols={df.shape[1]})")
             return sheet, df
@@ -196,7 +196,29 @@ async def upload_schedule(
         logger.info(f"Tạo LichHoc mới ID={lich.id_lichhoc}")
 
         content = await file.read()
-        excel = pd.ExcelFile(BytesIO(content), engine="openpyxl")
+        
+        # Kiểm tra file có hợp lệ không
+        if not content or len(content) < 100:
+            raise HTTPException(400, detail=f"File rỗng hoặc quá nhỏ ({len(content) if content else 0} bytes)")
+        
+        # Kiểm tra magic number của Excel file
+        header_hex = content[:8].hex()
+        is_xlsx = content.startswith(b'PK')  # Modern Excel (ZIP format)
+        is_xls = content.startswith(b'\xd0\xcf\x11\xe0')  # OLE2 format (Excel 97-2003)
+        
+        if not (is_xlsx or is_xls):
+            logger.error(f"File không phải Excel hợp lệ. Header: {header_hex}")
+            raise HTTPException(400, detail="File không phải định dạng Excel hợp lệ (.xlsx hoặc .xls)")
+        
+        # Chọn engine phù hợp
+        engine = "openpyxl" if is_xlsx else "xlrd"
+        logger.info(f"File format detected: {'XLSX' if is_xlsx else 'XLS'}, sử dụng engine: {engine}")
+        
+        try:
+            excel = pd.ExcelFile(BytesIO(content), engine=engine)
+        except Exception as e:
+            logger.error(f"Lỗi khi đọc file Excel: {str(e)}")
+            raise HTTPException(400, detail=f"File Excel không hợp lệ: {str(e)}")
 
         sheet_info = find_valid_sheet(excel)
         if not sheet_info:
@@ -207,7 +229,7 @@ async def upload_schedule(
         if header_row is None:
             raise HTTPException(400, detail="Không tìm thấy header chứa 'STT' và 'Lớp'")
 
-        df = pd.read_excel(BytesIO(content), sheet_name=used_sheet, header=header_row, engine="openpyxl")
+        df = pd.read_excel(BytesIO(content), sheet_name=used_sheet, header=header_row, engine=engine)
         df.columns = df.columns.astype(str).str.strip().str.replace(r'\s+', ' ', regex=True)
 
         stt_col = next((c for c in df.columns if "stt" in c.lower()), None)
@@ -216,6 +238,9 @@ async def upload_schedule(
         if not stt_col or not class_col:
             raise HTTPException(400, detail="Không tìm thấy cột STT hoặc Lớp")
 
+        # Convert to string để tránh lỗi khi xử lý XLS file
+        df[class_col] = df[class_col].fillna('').astype(str)
+        
         df[stt_col] = df[stt_col].ffill()
         df[class_col] = df[class_col].ffill()
         for day in DAY_MAP:
@@ -223,8 +248,7 @@ async def upload_schedule(
                 df[day] = df[day].ffill()
 
         df = df[
-            df[class_col].notna() &
-            df[class_col].str.strip().str.len() > 0 &
+            (df[class_col].str.strip().str.len() > 0) &
             (~df[class_col].str.lower().str.startswith(tuple(["ghi chú", "nơi nhận", "-"])))
         ].reset_index(drop=True)
 
@@ -548,4 +572,115 @@ def get_current_and_next_doctors(
         "next": upcoming,
         "total_current": len(current),
         "total_next": len(upcoming)
+    }
+
+
+
+@router.get("/week/exists")
+def check_week_exists(
+    start: str = Query(...),
+    end: str = Query(...),
+    db: Session = Depends(get_db)
+):
+    try:
+        start_date = parse_date(start, dayfirst=True).date()
+        end_date = parse_date(end, dayfirst=True).date()
+    except Exception:
+        raise HTTPException(400, detail="Định dạng ngày không hợp lệ (dd/mm/yyyy)")
+
+    exists = db.query(LichHoc).filter(
+        and_(LichHoc.ngay_bat_dau == start_date, LichHoc.ngay_ket_thuc == end_date)
+    ).first() is not None
+
+    return {"exists": exists}
+
+
+
+@router.delete("/week")
+def delete_week(
+    start: str = Query(...),
+    end: str = Query(...),
+    db: Session = Depends(get_db)
+):
+    try:
+        start_date = parse_date(start, dayfirst=True).date()
+        end_date = parse_date(end, dayfirst=True).date()
+    except Exception:
+        raise HTTPException(400, detail="Định dạng ngày không hợp lệ (dd/mm/yyyy)")
+
+    lich = db.query(LichHoc).filter(
+        and_(LichHoc.ngay_bat_dau == start_date, LichHoc.ngay_ket_thuc == end_date)
+    ).first()
+
+    if not lich:
+        raise HTTPException(404, detail="Không tìm thấy lịch tuần này")
+
+    db.delete(lich)  # cascade delete chi tiết
+    db.commit()
+
+    return {"message": "Đã xóa lịch tuần thành công"}
+
+
+@router.get("/class/{class_id}")
+def get_class_schedule(
+    class_id: int,
+    start: str = Query(...),
+    end: str = Query(...),
+    db: Session = Depends(get_db)
+):
+    """Lấy lịch học của một lớp trong tuần"""
+    logger.info(f"Query lịch lớp ID={class_id} từ {start} → {end}")
+    try:
+        start_date = parse_date(start, dayfirst=True).date()
+        end_date = parse_date(end, dayfirst=True).date()
+    except Exception:
+        raise HTTPException(400, detail="Định dạng ngày không hợp lệ (dd/mm/yyyy)")
+
+    # Kiểm tra lớp tồn tại
+    lop = db.query(LopHoc).filter(LopHoc.id_lophoc == class_id).first()
+    if not lop:
+        raise HTTPException(404, detail=f"Lớp ID={class_id} không tồn tại")
+
+    # Tìm lịch tuần
+    lich = db.query(LichHoc).filter(
+        and_(
+            LichHoc.ngay_bat_dau == start_date,
+            LichHoc.ngay_ket_thuc == end_date
+        )
+    ).first()
+
+    if not lich:
+        logger.info(f"Không tìm thấy lịch tuần {start} → {end}")
+        return {
+            "class_id": class_id,
+            "class_name": lop.ten_lop,
+            "week": f"{start} → {end}",
+            "schedule": []
+        }
+
+    # Lấy chi tiết lịch
+    chi_tiets = db.query(ChiTietLichHoc).filter(
+        and_(
+            ChiTietLichHoc.id_lichhoc == lich.id_lichhoc,
+            ChiTietLichHoc.id_lophoc == class_id
+        )
+    ).all()
+
+    schedule = []
+    for ct in chi_tiets:
+        schedule.append({
+            "id": ct.id_ctlh,
+            "day": next((k for k, v in DAY_MAP.items() if v == ct.id_thoidem), "Unknown"),
+            "ca_hoc": ct.ca_hoc,
+            "mon_hoc": ct.mon_hoc,
+            "giang_vien": ct.giang_vien,
+            "phong": ct.id_phong
+        })
+
+    logger.info(f"Trả về {len(schedule)} chi tiết lịch cho lớp {lop.ten_lop}")
+    return {
+        "class_id": class_id,
+        "class_name": lop.ten_lop,
+        "week": f"{start} → {end}",
+        "schedule": schedule
     }
