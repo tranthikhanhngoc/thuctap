@@ -1,0 +1,22 @@
+from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy.orm import relationship
+from database import Base
+
+class ChiTietLichHoc(Base):
+    __tablename__ = "chitietlichhoc"
+
+    id_ctlh = Column(Integer, primary_key=True, index=True)
+
+    id_lichhoc = Column(Integer, ForeignKey("lichhoc.id_lichhoc"))
+    id_lophoc = Column(Integer, ForeignKey("lophoc.id_lophoc"))
+    id_phong = Column(Integer, ForeignKey("phonghoc.id_phong"))
+    id_thoidem = Column(Integer, ForeignKey("thoidiem.id_thoidem"))
+
+    mon_hoc = Column(String(100))
+    giang_vien = Column(String(100))
+    ca_hoc      = Column(String(20), nullable=True)    # "Sáng", "Chiều", "Cả ngày", None
+
+    lichhoc = relationship("LichHoc", back_populates="chitietlichhoc", cascade="all, delete")
+    lophoc = relationship("LopHoc", back_populates="chitietlichhoc", cascade="all, delete")
+    phonghoc = relationship("PhongHoc", back_populates="chitietlichhoc")
+    thoidiem = relationship("ThoiDiem", back_populates="chitietlichhoc")
