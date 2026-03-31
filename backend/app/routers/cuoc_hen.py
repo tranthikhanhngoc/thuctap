@@ -626,3 +626,42 @@ def done_booking(id_cuochen: int, db: Session = Depends(get_db)):
         "ly_do": cuoc_hen.ly_do,
         "trang_thai": cuoc_hen.trang_thai
     }
+
+
+@router.patch("/confirm/{id_cuochen}", response_model=CuocHenResponse)
+def confirm_booking(id_cuochen: int, db: Session = Depends(get_db)):
+
+    cuoc_hen = db.query(CuocHen).filter(
+        CuocHen.id_cuochen == id_cuochen
+    ).first()
+
+    if not cuoc_hen:
+        raise HTTPException(status_code=404, detail="Không tìm thấy lịch hẹn")
+
+    # Optional: only allow certain statuses to be confirmed
+    if cuoc_hen.trang_thai not in ["CHO_XAC_NHAN", "DA_XAC_NHAN"]:  # adjust as needed
+        raise HTTPException(
+            status_code=400,
+            detail="Lịch không thể xác nhận ở trạng thái hiện tại"
+        )
+
+    cuoc_hen.trang_thai = "DA_XAC_NHAN"
+
+    db.commit()
+    db.refresh(cuoc_hen)
+
+    # Lấy thông tin bác sĩ + bệnh nhân để trả về response đầy đủ
+    bacsi = db.query(BacSi).filter(BacSi.id_bacsi == cuoc_hen.id_bacsi).first()
+    benhnhan = db.query(BenhNhan).filter(BenhNhan.id_benhnhan == cuoc_hen.id_benhnhan).first()
+
+    return {
+        "id_cuochen": cuoc_hen.id_cuochen,
+        "id_bacsi": bacsi.id_bacsi,
+        "ten_bacsi": bacsi.ho_ten,
+        "id_benhnhan": benhnhan.id_benhnhan,
+        "ten_benhnhan": benhnhan.ho_ten,
+        "ngay_hen": cuoc_hen.ngay_hen,
+        "ca_lam_viec": cuoc_hen.ca_lam_viec,
+        "ly_do": cuoc_hen.ly_do,
+        "trang_thai": cuoc_hen.trang_thai
+    }
