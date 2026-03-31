@@ -1,3 +1,4 @@
+*** Hướng dẫn cài đặt ***
 
 # Cài đặt môi trường ảo hóa
 ```bash
@@ -11,12 +12,12 @@ python -m venv venv
 .\venv\Scripts\activate
 ```
 
-# Chạy dự án từ điểm đầu vào file main.py
+## Chạy dự án từ điểm đầu vào file main.py
 ```bash
 uvicorn main:app --reload
 ```
 
-# Tắt ảo hóa    
+## Tắt ảo hóa    
 ```bash
 deactivate
 ```

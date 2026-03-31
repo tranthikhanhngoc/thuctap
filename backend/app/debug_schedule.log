@@ -376,3 +376,11 @@ AttributeError: module 'bcrypt' has no attribute '__about__'
 2026-03-31 14:39:51,079 INFO Query bác s\u0129 tr\u1ef1c ngày: 05/04/2026
 2026-03-31 14:39:51,090 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 05/04/2026
 2026-03-31 14:39:51,090 INFO Tr\u1ea3 v\u1ec1: current=2, upcoming=1
+2026-03-31 14:44:39,609 WARNING (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python311\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2026-03-31 14:44:39,616 DEBUG detected 'bcrypt' backend, version '<unknown>'
+2026-03-31 14:44:39,616 DEBUG 'bcrypt' backend lacks $2$ support, enabling workaround
