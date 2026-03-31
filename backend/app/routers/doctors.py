@@ -146,3 +146,24 @@ def delete_doctor(doctor_id: int, db: Session = Depends(get_db)):
     db.commit()
 
     return {"message": "Doctor deleted successfully"}
+
+
+# ===============================
+# GÁN BÁC SĨ VÀO LỚP
+# ===============================
+@router.patch("/{doctor_id}/assign-class")
+def assign_doctor_to_class(doctor_id: int, data: dict, db: Session = Depends(get_db)):
+    doctor = db.query(BacSi).filter(BacSi.id_bacsi == doctor_id).first()
+    if not doctor:
+        raise HTTPException(status_code=404, detail="Doctor not found")
+
+    id_lophoc = data.get("id_lophoc")  # None = bỏ gán lớp
+    doctor.id_lophoc = id_lophoc
+    db.commit()
+    db.refresh(doctor)
+
+    return {
+        "message": "Cập nhật lớp cho bác sĩ thành công",
+        "doctor_id": doctor.id_bacsi,
+        "id_lophoc": doctor.id_lophoc
+    }

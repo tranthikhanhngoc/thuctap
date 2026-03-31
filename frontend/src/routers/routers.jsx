@@ -1,10 +1,9 @@
 import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Navbar from "../components/navigation/nav";  
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import Navbar from "../components/navigation/nav";
 import Register from "../components/authentication/Register";
 import Login from "../components/authentication/Login";
 import Home from "../pages/home";
-
 
 import BacSiHome from "../pages/BacSiHome";
 import AdminHome from "../pages/AdminHome";
@@ -25,63 +24,117 @@ import XemBacSiTruc from "../pages/Patient/XemBacSiTruc";
 import PrescriptionManage from "../pages/Admin/PrescriptionManage";
 import XemDanhSachThuoc from "../pages/Patient/XemDanhSachThuoc";
 
-// Pages (ví dụ)
-const DatLich = () => <div className="p-6">Trang Đặt lịch</div>;
-const XemLich = () => <div className="p-6">Trang Xem lịch</div>;
+// ─── Role Guard ─────────────────────────────────────────────
+const RoleGuard = ({ allowedRoles, children }) => {
+  const token = localStorage.getItem("access_token");
+  const role = localStorage.getItem("role");
 
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (!allowedRoles.includes(role)) {
+    // Redirect về trang phù hợp với role hiện tại
+    if (role === "admin") return <Navigate to="/admin" replace />;
+    if (role === "bacsi") return <Navigate to="/bacsi" replace />;
+    return <Navigate to="/home" replace />;
+  }
+
+  return children;
+};
+
+// ─── Layout wrapper: ẩn Nav/Footer cho admin & bác sĩ ──────
+const AppLayout = () => {
+  const location = useLocation();
+
+  const isAdminRoute = location.pathname.startsWith("/admin");
+  const isBacSiRoute = location.pathname.startsWith("/bacsi");
+  const hideNavFooter = isAdminRoute || isBacSiRoute;
+
+  return (
+    <>
+      {!hideNavFooter && <Navbar />}
+
+      <Routes>
+        {/* ─── Public routes ─────────────────────────────── */}
+        <Route path="/" element={<Home />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+
+        {/* ─── Admin routes (chỉ admin) ──────────────────── */}
+        <Route path="/admin" element={
+          <RoleGuard allowedRoles={["admin"]}>
+            <AdminHome />
+          </RoleGuard>
+        } />
+        <Route path="/admin/quan-ly-bac-si" element={
+          <RoleGuard allowedRoles={["admin"]}>
+            <DoctorManage />
+          </RoleGuard>
+        } />
+        <Route path="/admin/quan-ly-benh-nhan" element={
+          <RoleGuard allowedRoles={["admin"]}>
+            <PatientManage />
+          </RoleGuard>
+        } />
+        <Route path="/admin/quan-ly-lich-kham" element={
+          <RoleGuard allowedRoles={["admin"]}>
+            <BookingManage />
+          </RoleGuard>
+        } />
+        <Route path="/admin/quan-ly-lich-hoc" element={
+          <RoleGuard allowedRoles={["admin"]}>
+            <ScheduleManage />
+          </RoleGuard>
+        } />
+        <Route path="/admin/quan-ly-thuoc" element={
+          <RoleGuard allowedRoles={["admin"]}>
+            <PrescriptionManage />
+          </RoleGuard>
+        } />
+
+        {/* ─── Bác sĩ routes (chỉ bác sĩ) ───────────────── */}
+        <Route path="/bacsi" element={
+          <RoleGuard allowedRoles={["bacsi"]}>
+            <BacSiHome />
+          </RoleGuard>
+        } />
+        <Route path="/bacsi/lich-kham" element={
+          <RoleGuard allowedRoles={["bacsi"]}>
+            <LichKham />
+          </RoleGuard>
+        } />
+        <Route path="/bacsi/lich-hoc" element={
+          <RoleGuard allowedRoles={["bacsi"]}>
+            <LichHoc />
+          </RoleGuard>
+        } />
+        <Route path="/bacsi/benh-an" element={
+          <RoleGuard allowedRoles={["bacsi"]}>
+            <BacSiHome />
+          </RoleGuard>
+        } />
+
+        {/* ─── Patient routes (có đăng nhập) ─────────────── */}
+        <Route path="/patient/appointment" element={<Booking />} />
+        <Route path="/patient/lich-su-dat-lich" element={<LichSuDatLich />} />
+        <Route path="/patient/xem-bac-si-truc" element={<XemBacSiTruc />} />
+        <Route path="/patient/xem-danh-sach-thuoc" element={<XemDanhSachThuoc />} />
+      </Routes>
+
+      {!hideNavFooter && <Footer />}
+    </>
+  );
+};
+
+// ─── Root Router ────────────────────────────────────────────
 const Routers = () => {
   return (
     <BrowserRouter>
-      {/* Nav luôn hiển thị */}
-        <Navbar />
-
-      {/* Nội dung từng trang */}
-      <Routes>
-        
-        <Route path="/" element={<Home />} />
-        <Route path="/dat-lich" element={<DatLich />} />
-        <Route path="/xem-lich" element={<XemLich />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-
-        {/* Login chuyen theo role  */}
-        <Route path="/home" element={<Home />} />
-        <Route path="/admin" element={<AdminHome />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-        {/* Logic xu ly trong trang role admin */}
-        <Route path="/admin/quan-ly-bac-si" element={<DoctorManage />} />
-        <Route path="/admin/quan-ly-benh-nhan" element={<PatientManage />} />
-        <Route path="/admin/quan-ly-lich-kham" element={<BookingManage />} />
-        <Route path="/admin/quan-ly-bac-si" element={<AdminHome />} />
-        <Route path="/admin/quan-ly-lich-hoc" element={<ScheduleManage />} />
-        <Route path="/admin/quan-ly-thuoc" element={<PrescriptionManage />} />
-        {/* Logic xu ly trong trang role patient */}
-        <Route path="/patient/appointment" element={<Booking />} />
-        <Route path="/patient/quan-ly-benh-nhan" element={<AdminHome />} />
-        <Route path="/patient/quan-ly-bac-si" element={<AdminHome />} />
-        <Route path="/patient/xem-bac-si-truc" element={<XemBacSiTruc />} />
-        <Route
-        path="/patient/lich-su-dat-lich"
-          element={<LichSuDatLich />}
-        />
-        <Route path="/patient/xem-danh-sach-thuoc" element={<XemDanhSachThuoc />} />
-        {/* Logic xu ly trong trang role bac si */}
-        <Route path="/bacsi/lich-kham" element={<LichKham />} />
-        <Route path="/bacsi/lich-hoc" element={<LichHoc />} />
-        <Route path="/bacsi/benh-an" element={<BacSiHome />} />
-      
-
-        <Route path="/bacsi" element={<BacSiHome />} />
-
-
-
-      </Routes>
-
-
-      {/* Nav luôn hiển thị */}
-        <Footer />
-
+      <AppLayout />
     </BrowserRouter>
   );
 };

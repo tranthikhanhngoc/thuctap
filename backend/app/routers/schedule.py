@@ -4,6 +4,11 @@ from datetime import date, timedelta
 from dateutil.parser import parse as parse_date
 import re
 import traceback
+import logging
+import io
+logging.basicConfig(filename='debug_schedule.log', level=logging.DEBUG, 
+                    format='%(asctime)s %(levelname)s %(message)s')
+logger = logging.getLogger(__name__)
 import pandas as pd
 from io import BytesIO
 from datetime import datetime  # ← thêm dòng này
@@ -48,6 +53,12 @@ def normalize_ca(ca: Optional[str]) -> str:
     if "chiều" in c or "c." in c:
         return "C."
     return "Cả ngày"
+
+
+def ca_display_name(ca: str) -> str:
+    """Chuyển ca ngắn gọn sang tên hiển thị cho frontend"""
+    mapping = {"S.": "Sáng", "C.": "Chiều", "Cả ngày": "Cả ngày"}
+    return mapping.get(ca, ca)
 
 def determine_ca_hoc(text: str) -> Optional[str]:
     """Chỉ lưu khi ô bắt đầu rõ ràng bằng S., C., hoặc Cả ngày.
@@ -112,14 +123,8 @@ def parse_cell_content(value) -> Tuple[Optional[str], Optional[str], Optional[st
 
     full_content = "\n".join(lines)
     
-    # Xác định ca - BÂY GIỜ RẤT NGHIÊM NGẶT
-    ca_hoc = determine_ca_hoc(lines[0] if lines else "")
-    
-    if ca_hoc is None:
-        logger.info(f"BỎ QUA cell: {full_content[:120]}...")  # đổi thành info để dễ thấy
-        return None, None, None
-
-    # Tìm giảng viên (giữ nguyên logic cũ)
+    # Không cần xác định ca ở đây nữa vì đã làm bên ngoài
+    # Tìm giảng viên
     giang_vien = None
     title_prefixes = ["ts.", "th.s.", "ths.", "pgs.", "gs.", "bs.", "bác sĩ", "dr.", "gv.", "thầy ", "cô "]
 
@@ -136,8 +141,7 @@ def parse_cell_content(value) -> Tuple[Optional[str], Optional[str], Optional[st
         if len(potential.split()) >= 2 and not any(w in potential.lower() for w in ['sáng','chiều','cả ngày']):
             giang_vien = potential
 
-    logger.debug(f"PARSE THÀNH CÔNG → Ca: {ca_hoc} | GV: {giang_vien} | Nội dung: {full_content[:60]}...")
-    return full_content.strip(), giang_vien, ca_hoc
+    return full_content.strip(), giang_vien, None
 
 
 def find_valid_sheet(excel: pd.ExcelFile) -> Optional[tuple[str, pd.DataFrame]]:
@@ -152,8 +156,8 @@ def find_valid_sheet(excel: pd.ExcelFile) -> Optional[tuple[str, pd.DataFrame]]:
 
 def find_header_row(df_raw: pd.DataFrame) -> Optional[int]:
     for i in range(min(20, len(df_raw))):
-        row_str = df_raw.iloc[i].astype(str).str.lower()
-        if "stt" in row_str.values and "lớp" in row_str.values:
+        vals = df_raw.iloc[i].astype(str).str.lower().tolist()
+        if any('stt' in v for v in vals) and any('lớp' in v for v in vals):
             logger.info(f"Tìm thấy header ở dòng {i}")
             return i
     logger.warning("Không tìm thấy header chứa 'STT' và 'Lớp'")
@@ -236,38 +240,88 @@ async def upload_schedule(
         if header_row is None:
             raise HTTPException(400, detail="Không tìm thấy header chứa 'STT' và 'Lớp'")
 
-        df = pd.read_excel(BytesIO(content), sheet_name=used_sheet, header=header_row, engine=engine)
-        df.columns = df.columns.astype(str).str.strip().str.replace(r'\s+', ' ', regex=True)
+        # Đọc raw data (KHÔNG dùng header, giữ nguyên index gốc)
+        df = df_raw.copy()
+        # Lấy tên cột từ header row
+        col_names = [str(v).strip() for v in df.iloc[header_row].values]
+        df.columns = col_names
 
+        # Tìm cột STT và Lớp
         stt_col = next((c for c in df.columns if "stt" in c.lower()), None)
         class_col = next((c for c in df.columns if "lớp" in c.lower()), None)
 
         if not stt_col or not class_col:
             raise HTTPException(400, detail="Không tìm thấy cột STT hoặc Lớp")
 
-        # Convert sang string để an toàn
-        df[class_col] = df[class_col].fillna('').astype(str)
-        df[stt_col] = df[stt_col].fillna('').astype(str)
+        # Chỉ lấy dữ liệu sau header
+        df = df.iloc[header_row + 1:].reset_index(drop=True)
 
-        # === SỬA QUAN TRỌNG Ở ĐÂY: ffill + bfill cho cột ngày ===
-        for day in DAY_MAP:
-            if day in df.columns:
-                # ffill trước (từ trên xuống), sau đó bfill để lấp ô đầu trống
-                df[day] = df[day].ffill().bfill()
+        logger.info(f"Tổng dòng dữ liệu: {len(df)}, Cột: {list(df.columns)}")
 
-        # Lọc bỏ các dòng không có tên lớp hợp lệ
-        df = df[
-            (df[class_col].str.strip().str.len() > 0) &
-            (~df[class_col].str.lower().str.startswith(tuple(["ghi chú", "nơi nhận", "-"])))
-        ].reset_index(drop=True)
+        # ═══════════════════════════════════════════════════
+        #   BƯỚC 1: Nhóm các dòng theo Class Block
+        #   Mỗi block bắt đầu bằng dòng có STT (số)
+        # ═══════════════════════════════════════════════════
+        class_blocks = []  # [(class_name, [row_indices])]
+        current_class_name = None
+        current_rows = []
 
-        logger.info(f"Số dòng dữ liệu sau lọc: {len(df)}")
+        for idx in range(len(df)):
+            row = df.iloc[idx]
+            stt_val = str(row[stt_col]).strip().lower() if pd.notna(row[stt_col]) else ""
+            class_val = str(row[class_col]).strip() if pd.notna(row[class_col]) else ""
 
+            # Dòng bắt đầu lớp mới: có STT là số
+            is_new_class = False
+            try:
+                if stt_val and stt_val != "nan":
+                    float(stt_val)
+                    is_new_class = True
+            except ValueError:
+                pass
+            
+            if is_new_class:
+                # Lưu block trước đó
+                if current_class_name and current_rows:
+                    class_blocks.append((current_class_name, current_rows))
+
+                # Logic inline từ clean_class_name để ko bị rỗng
+                raw_name = class_val
+                if class_val:
+                    lines = str(class_val).strip().split("\n")
+                    first_line = lines[0].strip().lower()
+                    ignore = ["ghi chú", "nơi nhận", "- ban", "- các khoa", "- lưu", "lưu vt", "ngày"]
+                    if not (any(first_line.startswith(kw) for kw in ignore) or first_line.startswith("-")):
+                        raw_name = re.sub(r'\s+', ' ', lines[0].strip())
+                    else:
+                        raw_name = None
+                else:
+                    raw_name = None
+
+                current_class_name = raw_name
+                current_rows = [idx]
+            else:
+                # Kiểm tra nếu là dòng footer (nơi nhận, ghi chú...)
+                low = class_val.lower()
+                if any(low.startswith(kw) for kw in ["nơi nhận", "- ban", "- các khoa", "- lưu", "lưu vt"]):
+                    break  # Hết phần dữ liệu, dừng
+                # Thêm vào block hiện tại
+                if current_class_name:
+                    current_rows.append(idx)
+
+        # Lưu block cuối
+        if current_class_name and current_rows:
+            class_blocks.append((current_class_name, current_rows))
+
+        logger.info(f"Tìm thấy {len(class_blocks)} lớp trong file Excel")
+
+        # ═══════════════════════════════════════════════════
+        #   BƯỚC 2: Xử lý từng class block
+        # ═══════════════════════════════════════════════════
         insert_count = 0
         skipped = 0
 
-        for idx, row in df.iterrows():
-            class_name = clean_class_name(row[class_col])
+        for class_name, row_indices in class_blocks:
             if not class_name:
                 continue
 
@@ -279,57 +333,80 @@ async def upload_schedule(
                 db.flush()
                 logger.info(f"Tạo lớp mới: {class_name} (ID={lop.id_lophoc})")
 
+            # Xử lý từng cột ngày
             for day_str, thoidem_id in DAY_MAP.items():
                 if day_str not in df.columns:
                     continue
 
-                cell_value = row[day_str]
-                if pd.isna(cell_value):
+                # Thu thập TẤT CẢ cell values cho ngày này từ TOÀN BỘ block
+                day_cells = []
+                for ridx in row_indices:
+                    cell = df.iloc[ridx][day_str]
+                    if pd.notna(cell):
+                        cell_str = str(cell).strip()
+                        if cell_str and cell_str not in {"/", ".", "-", "nan", ""}:
+                            day_cells.append(cell_str)
+
+                if not day_cells:
                     continue
 
-                content_str = str(cell_value).strip()
-                if not content_str or content_str in {"/", ".", "-", "nan"}:
+                # Phân tích từng cell riêng để tìm ca
+                found_cas = set()
+                for cell_text in day_cells:
+                    ca = determine_ca_hoc(cell_text)
+                    if ca:
+                        found_cas.add(ca)
+
+                if not found_cas:
+                    logger.debug(f"Bỏ qua {class_name} | {day_str}: không xác định ca")
                     continue
 
-                # Parse cell (hỗ trợ nhiều ca trong 1 ô hoặc ô có 2 dòng S. + C.)
-                mon_hoc, giang_vien, ca_hoc = parse_cell_content(content_str)
+                # Xử lý từng ca tìm được
+                for ca_hoc in found_cas:
+                    giang_vien = None
 
-                if not mon_hoc:
-                    continue
+                    # Tìm giảng viên trong các cell
+                    title_prefixes = ["ts.", "th.s.", "ths.", "pgs.", "gs.", "bs.", "bác sĩ", "dr.", "gv.", "thầy ", "cô "]
+                    for cell_text in day_cells:
+                        for line in cell_text.split("\n"):
+                            line_lower = line.strip().lower()
+                            if any(p in line_lower for p in title_prefixes):
+                                potential = line.strip()
+                                if len(potential.split()) >= 2:
+                                    giang_vien = potential
+                                    break
+                        if giang_vien:
+                            break
 
-                mon_hoc = mon_hoc.strip()
-                giang_vien = giang_vien.strip() if giang_vien else None
+                    # Mon hoc = toàn bộ nội dung gộp
+                    mon_hoc = "\n".join(day_cells).strip()
 
-                # Kiểm tra trùng lặp trước khi insert
-                existing_ct = db.query(ChiTietLichHoc).filter(
-                    and_(
-                        ChiTietLichHoc.id_lichhoc == lich.id_lichhoc,
-                        ChiTietLichHoc.id_lophoc == lop.id_lophoc,
-                        ChiTietLichHoc.id_thoidem == thoidem_id,
-                        ChiTietLichHoc.ca_hoc == ca_hoc,
-                        ChiTietLichHoc.mon_hoc == mon_hoc,
-                        (ChiTietLichHoc.giang_vien == giang_vien) |
-                        (ChiTietLichHoc.giang_vien.is_(None) & (giang_vien is None))
+                    # Kiểm tra trùng lặp
+                    existing_ct = db.query(ChiTietLichHoc).filter(
+                        and_(
+                            ChiTietLichHoc.id_lichhoc == lich.id_lichhoc,
+                            ChiTietLichHoc.id_lophoc == lop.id_lophoc,
+                            ChiTietLichHoc.id_thoidem == thoidem_id,
+                            ChiTietLichHoc.ca_hoc == ca_hoc,
+                        )
+                    ).first()
+
+                    if existing_ct:
+                        skipped += 1
+                        continue
+
+                    ct = ChiTietLichHoc(
+                        id_lichhoc=lich.id_lichhoc,
+                        id_lophoc=lop.id_lophoc,
+                        id_phong=None,
+                        id_thoidem=thoidem_id,
+                        mon_hoc=mon_hoc,
+                        giang_vien=giang_vien,
+                        ca_hoc=ca_hoc
                     )
-                ).first()
-
-                if existing_ct:
-                    skipped += 1
-                    logger.debug(f"Bỏ qua trùng lặp: {class_name} - {ca_hoc} - {mon_hoc}")
-                    continue
-
-                ct = ChiTietLichHoc(
-                    id_lichhoc=lich.id_lichhoc,
-                    id_lophoc=lop.id_lophoc,
-                    id_phong=None,
-                    id_thoidem=thoidem_id,
-                    mon_hoc=mon_hoc,
-                    giang_vien=giang_vien,
-                    ca_hoc=ca_hoc
-                )
-                db.add(ct)
-                insert_count += 1
-                logger.info(f"Thêm: {class_name} | {day_str} | {ca_hoc} | {mon_hoc} | GV: {giang_vien or 'N/A'}")
+                    db.add(ct)
+                    insert_count += 1
+                    logger.info(f"Thêm: {class_name} | {day_str} | {ca_hoc} | GV: {giang_vien or 'N/A'}")
 
         db.commit()
         logger.info(f"Upload hoàn tất: inserted={insert_count}, skipped={skipped}")
@@ -352,6 +429,9 @@ async def upload_schedule(
 # ────────────────────────────────────────────────
 
 def get_doctors_on_duty_logic(db: Session, target_date_str: str) -> Dict:
+    """Tìm bác sĩ trực theo ngày.
+    Logic: Ngày → Tìm tuần (LichHoc) → Tìm lớp có lịch ngày đó (ChiTietLichHoc)
+           → Tìm bác sĩ thuộc lớp đó (BacSi.id_lophoc) → Trả về theo ca"""
     logger.info(f"Query bác sĩ trực ngày: {target_date_str}")
     try:
         target_date = parse_date(target_date_str, dayfirst=True).date()
@@ -359,6 +439,7 @@ def get_doctors_on_duty_logic(db: Session, target_date_str: str) -> Dict:
         logger.warning(f"Parse ngày thất bại: {target_date_str} - {e}")
         return {"ngay": target_date_str, "ca_truc": {}}
 
+    # 1. Tìm tuần chứa ngày
     lich = db.query(LichHoc).filter(
         and_(
             LichHoc.ngay_bat_dau <= target_date,
@@ -373,41 +454,81 @@ def get_doctors_on_duty_logic(db: Session, target_date_str: str) -> Dict:
     logger.info(f"Tìm thấy LichHoc ID={lich.id_lichhoc} - {lich.ten_tuan}")
 
     thu = target_date.isoweekday()
-    logger.debug(f"Thứ trong tuần: {thu} ({target_date.strftime('%A')})")
+    logger.debug(f"Thứ trong tuần: {thu}")
 
-    records = db.query(
-        ChiTietLichHoc.giang_vien.label("bac_si"),
-        ChiTietLichHoc.ca_hoc.label("ca"),
-        ChiTietLichHoc.mon_hoc.label("mon"),
-        LopHoc.ten_lop.label("lop")
-    ).join(LopHoc).filter(
+    # 2. Tìm tất cả lớp có lịch ngày đó
+    lich_hoc_records = db.query(
+        ChiTietLichHoc.id_lophoc,
+        ChiTietLichHoc.ca_hoc,
+        ChiTietLichHoc.mon_hoc
+    ).filter(
         ChiTietLichHoc.id_lichhoc == lich.id_lichhoc,
-        ChiTietLichHoc.id_thoidem == thu,
-        ChiTietLichHoc.giang_vien.isnot(None),
-        ChiTietLichHoc.giang_vien != ""
+        ChiTietLichHoc.id_thoidem == thu
     ).all()
 
-    logger.info(f"Tìm thấy {len(records)} bản ghi bác sĩ trực ngày {target_date_str}")
+    if not lich_hoc_records:
+        logger.info(f"Không có lớp nào có lịch ngày {target_date_str}")
+        return {"ngay": target_date_str, "ca_truc": {}}
 
-    result = {"Sáng": [], "Chiều": [], "Cả ngày": []}
+    logger.info(f"Tìm thấy {len(lich_hoc_records)} chi tiết lịch ngày {target_date_str}")
 
-    for r in records:
-        ca = normalize_ca(r.ca)
-        entry = {
-            "bac_si": r.bac_si.strip(),
-            "lop": r.lop.strip(),
-            "mon": (r.mon or "").strip()
-        }
-        result[ca].append(entry)
-        logger.debug(f"Thêm: {ca} - {entry['bac_si']} - {entry['lop']} - {entry['mon']}")
+    # 3. Group lớp theo ca_hoc (dùng tên hiển thị: Sáng/Chiều/Cả ngày)
+    lop_theo_ca = {}  # {"Sáng": [{id_lophoc, mon_hoc}, ...], ...}
+    for rec in lich_hoc_records:
+        ca_raw = normalize_ca(rec.ca_hoc)       # S. / C. / Cả ngày
+        ca_name = ca_display_name(ca_raw)        # Sáng / Chiều / Cả ngày
+        if ca_name not in lop_theo_ca:
+            lop_theo_ca[ca_name] = []
+        lop_theo_ca[ca_name].append({
+            "id_lophoc": rec.id_lophoc,
+            "mon_hoc": rec.mon_hoc or "—"
+        })
 
-    result = {k: v for k, v in result.items() if v}
+    # 4. Query bác sĩ theo các lớp có lịch
+    result = {}
+    tong_bac_si = set()
+
+    for ca, lops in lop_theo_ca.items():
+        if not lops:
+            continue
+
+        id_lophocs = list(set(lop["id_lophoc"] for lop in lops))
+        bacsi_list = db.query(BacSi).filter(
+            BacSi.id_lophoc.in_(id_lophocs)
+        ).all()
+
+        if not bacsi_list:
+            logger.debug(f"Không có bác sĩ cho ca {ca}, lớp IDs: {id_lophocs}")
+            continue
+
+        entries = []
+        for bs in bacsi_list:
+            # Lấy thông tin môn/lớp
+            mon_parts = []
+            for lop_info in lops:
+                if lop_info["id_lophoc"] == bs.id_lophoc:
+                    lop_name = bs.lophoc.ten_lop if bs.lophoc else "—"
+                    mon_parts.append(f"{lop_info['mon_hoc']}")
+
+            entry = {
+                "bac_si": bs.ho_ten.strip() if bs.ho_ten else "Chưa có tên",
+                "lop": bs.lophoc.ten_lop if bs.lophoc else "—",
+                "mon": ", ".join(set(mon_parts)) if mon_parts else "—",
+                "chuyen_khoa": bs.chuyen_khoa or "—",
+                "sdt": bs.so_dien_thoai or "—",
+                "email": bs.email or "—",
+            }
+            entries.append(entry)
+            tong_bac_si.add(bs.id_bacsi)
+            logger.info(f"Bác sĩ trực: {entry['bac_si']} | Ca: {ca} | Lớp: {entry['lop']}")
+
+        result[ca] = entries
 
     return {
         "ngay": target_date_str,
         "thu": f"Thứ {thu}",
         "tuan": lich.ten_tuan,
-        "tong_bac_si": len({r.bac_si for r in records}),
+        "tong_bac_si": len(tong_bac_si),
         "ca_truc": result
     }
 
@@ -438,101 +559,10 @@ def get_doctors_on_duty(
     logger.info(f"API /doctors/on-duty gọi với date={date}, ca={ca}")
     data = get_doctors_on_duty_logic(db, date)
     if ca:
-        ca_norm = normalize_ca(ca)
+        ca_norm = ca_display_name(normalize_ca(ca))
         data["ca_truc"] = {k: v for k, v in data.get("ca_truc", {}).items() if k == ca_norm}
         logger.info(f"Lọc theo ca: {ca_norm} → còn {sum(len(v) for v in data['ca_truc'].values())} bản ghi")
     return data
-
-def get_doctors_on_duty_logic(db: Session, target_date_str: str) -> Dict:
-    logger.info(f"Query bác sĩ trực ngày: {target_date_str}")
-    try:
-        target_date = parse_date(target_date_str, dayfirst=True).date()
-    except Exception as e:
-        logger.warning(f"Parse ngày thất bại: {target_date_str} - {e}")
-        return {"ngay": target_date_str, "ca_truc": {}}
-
-    # 1. Tìm tuần chứa ngày
-    lich = db.query(LichHoc).filter(
-        and_(
-            LichHoc.ngay_bat_dau <= target_date,
-            LichHoc.ngay_ket_thuc >= target_date
-        )
-    ).order_by(LichHoc.ngay_bat_dau.desc()).first()
-
-    if not lich:
-        logger.info(f"Không tìm thấy tuần chứa ngày {target_date_str}")
-        return {"ngay": target_date_str, "ca_truc": {}}
-
-    logger.info(f"Tìm thấy LichHoc ID={lich.id_lichhoc} - {lich.ten_tuan}")
-
-    thu = target_date.isoweekday()
-    logger.debug(f"Thứ trong tuần: {thu}")
-
-    # 2. Tìm tất cả lớp có lịch ngày đó (có id_thoidem == thu)
-    lich_hoc_records = db.query(
-        ChiTietLichHoc.id_lophoc,
-        ChiTietLichHoc.ca_hoc,
-        ChiTietLichHoc.mon_hoc
-    ).filter(
-        ChiTietLichHoc.id_lichhoc == lich.id_lichhoc,
-        ChiTietLichHoc.id_thoidem == thu
-    ).all()
-
-    if not lich_hoc_records:
-        logger.info(f"Không có lớp nào có lịch ngày {target_date_str}")
-        return {"ngay": target_date_str, "ca_truc": {}}
-
-    logger.info(f"Tìm thấy {len(lich_hoc_records)} lớp có lịch ngày {target_date_str}")
-
-    # 3. Group lớp theo ca_hoc
-    lop_theo_ca = {"Sáng": [], "Chiều": [], "Cả ngày": []}
-    for rec in lich_hoc_records:
-        ca = normalize_ca(rec.ca_hoc)
-        lop_theo_ca[ca].append({
-            "id_lophoc": rec.id_lophoc,
-            "mon_hoc": rec.mon_hoc or "—"
-        })
-
-    # 4. Query bác sĩ theo các lớp có lịch
-    result = {"Sáng": [], "Chiều": [], "Cả ngày": []}
-    tong_bac_si = set()
-
-    for ca, lops in lop_theo_ca.items():
-        if not lops:
-            continue
-
-        id_lophocs = [lop["id_lophoc"] for lop in lops]
-        bacsi_list = db.query(BacSi).filter(
-            BacSi.id_lophoc.in_(id_lophocs)
-        ).all()
-
-        for bs in bacsi_list:
-            # Tìm môn/lớp tương ứng để ghi chú
-            ghi_chu_parts = []
-            for lop_info in lops:
-                if lop_info["id_lophoc"] == bs.id_lophoc:
-                    ghi_chu_parts.append(f"{lop_info['mon_hoc']} - Lớp {bs.lophoc.ten_lop if bs.lophoc else '—'}")
-
-            entry = {
-                "bac_si": bs.ho_ten.strip() if bs.ho_ten else "Chưa có tên",
-                "lop": bs.lophoc.ten_lop if bs.lophoc else "—",
-                "mon": ", ".join(set(ghi_chu_parts)) if ghi_chu_parts else "—",
-                "chuyen_khoa": bs.chuyen_khoa or "—",
-                "sdt": bs.so_dien_thoai or "—",
-                "email": bs.email or "—",
-            }
-            result[ca].append(entry)
-            tong_bac_si.add(bs.id_bacsi)
-
-    result = {k: v for k, v in result.items() if v}
-
-    return {
-        "ngay": target_date_str,
-        "thu": f"Thứ {thu}",
-        "tuan": lich.ten_tuan,
-        "tong_bac_si": len(tong_bac_si),
-        "ca_truc": result
-    }
 
 
 @router.get("/doctors/current-and-next")

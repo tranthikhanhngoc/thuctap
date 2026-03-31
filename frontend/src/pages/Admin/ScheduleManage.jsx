@@ -28,9 +28,11 @@ const ScheduleManage = () => {
   const [scheduleError, setScheduleError] = useState(null);
   const [excelFile, setExcelFile] = useState(null);
   const [selectedClass, setSelectedClass] = useState(null);
-  const [selectedDate, setSelectedDate] = useState("");
-  const [doctorSchedule, setDoctorSchedule] = useState(null);
   const [loadingDoctor, setLoadingDoctor] = useState(false);
+
+  // ─── States cho gán bác sĩ ──────────────────────────────
+  const [allDoctors, setAllDoctors] = useState([]);
+  const [loadingDoctors, setLoadingDoctors] = useState(false);
 
   const days = ["Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu"];
 
@@ -175,24 +177,88 @@ const ScheduleManage = () => {
     }
   };
 
-  const loadDoctorsByDate = useCallback(async (dateStr) => {
-    if (!dateStr) return;
-    setLoadingDoctor(true);
-    setDoctorSchedule(null);
+  const [currentDoctors, setCurrentDoctors] = useState([]);
+  const [nextDoctors, setNextDoctors] = useState([]);
+  const [adminDocTab, setAdminDocTab] = useState("current"); // current | next | all
 
+  const isDoctorActive = useCallback((doc) => {
+    if (!doc.ngay || !doc.thoi_gian_bat_dau || !doc.thoi_gian_ket_thuc) return false;
+    const [d, m, y] = doc.ngay.split("/").map(Number);
+    const shiftDate = new Date(y, m - 1, d);
+    const [sh, sm] = doc.thoi_gian_bat_dau.split(":").map(Number);
+    const [eh, em] = doc.thoi_gian_ket_thuc.split(":").map(Number);
+    const now = new Date();
+    const start = new Date(shiftDate); start.setHours(sh, sm, 0, 0);
+    const end = new Date(shiftDate); end.setHours(eh, em, 0, 0);
+    if (end < start) end.setDate(end.getDate() + 1);
+    return now >= start && now < end;
+  }, []);
+
+  const fetchAdminDoctorsDuty = useCallback(async () => {
+    setLoadingDoctor(true);
     try {
-      const { data } = await api.get("/schedule/doctors/on-duty", { params: { date: dateStr } });
-      setDoctorSchedule(data);
+      const [resShift, resAll] = await Promise.all([
+        api.get("/schedule/doctors/current-and-next", { params: { days_ahead: 5 } }),
+        api.get("/schedule/doctors/all")
+      ]);
+
+      const enrichedCurrent = (resShift.data.current || []).map(doc => ({
+        ...doc, isActive: isDoctorActive(doc),
+      }));
+
+      const sortOrder = { Sáng: 1, Chiều: 2, "Cả ngày": 3 };
+      const enrichedNext = (resShift.data.next || []).sort((a, b) => {
+        const da = new Date(a.ngay.split("/").reverse().join("-"));
+        const db = new Date(b.ngay.split("/").reverse().join("-"));
+        if (da.getTime() !== db.getTime()) return da - db;
+        return (sortOrder[a.ca_truc] || 999) - (sortOrder[b.ca_truc] || 999);
+      });
+
+      setCurrentDoctors(enrichedCurrent);
+      setNextDoctors(enrichedNext);
+      setAllDoctors(resAll.data.doctors || []);
     } catch (err) {
-      console.error("Lỗi tải bác sĩ trực:", err);
-      setDoctorSchedule(null);
+      console.error("Lỗi tải thông tin trực:", err);
     } finally {
       setLoadingDoctor(false);
     }
+  }, [api, isDoctorActive]);
+
+  useEffect(() => {
+    if (activeTab === "doctors") {
+      fetchAdminDoctorsDuty();
+    }
+  }, [activeTab, fetchAdminDoctorsDuty]);
+
+  useEffect(() => { fetchClasses(); }, [fetchClasses]);
+
+  // ─── Fetch all doctors ────────────────────────────────────
+  const fetchDoctors = useCallback(async () => {
+    setLoadingDoctors(true);
+    try {
+      const res = await api.get("/doctors/");
+      setAllDoctors(res.data || []);
+    } catch (err) {
+      console.error("Lấy danh sách bác sĩ thất bại:", err);
+    } finally {
+      setLoadingDoctors(false);
+    }
   }, [api]);
 
-  // ─── Effects ───────────────────────────────────────────────
-  useEffect(() => { fetchClasses(); }, [fetchClasses]);
+  useEffect(() => {
+    if (activeTab === "assign-doctors") fetchDoctors();
+  }, [activeTab, fetchDoctors]);
+
+  const handleAssignClass = async (doctorId, idLophoc) => {
+    try {
+      await api.patch(`/doctors/${doctorId}/assign-class`, {
+        id_lophoc: idLophoc || null
+      });
+      fetchDoctors();
+    } catch (err) {
+      alert("Gán lớp thất bại: " + (err.response?.data?.detail || err.message));
+    }
+  };
 
   useEffect(() => {
     const term = searchTerm.toLowerCase().trim();
@@ -243,7 +309,7 @@ const ScheduleManage = () => {
       <div className="p-6 max-w-7xl mx-auto">
         {/* Tabs */}
         <div className="flex flex-wrap gap-4 md:gap-8 mb-8 border-b pb-2">
-          {["classes", "all-schedules", "schedule", "doctors"].map(tab => (
+          {["classes", "all-schedules", "schedule", "assign-doctors", "doctors"].map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -256,7 +322,8 @@ const ScheduleManage = () => {
             >
               {tab === "classes" ? "Quản lý lớp" :
                tab === "all-schedules" ? "TKB tất cả lớp" :
-               tab === "schedule" ? `TKB ${selectedClass?.ten_lop || "..."}` : "Bác sĩ trực"}
+               tab === "schedule" ? `TKB ${selectedClass?.ten_lop || "..."}` :
+               tab === "assign-doctors" ? "Gán bác sĩ - lớp" : "Bác sĩ trực"}
             </button>
           ))}
         </div>
@@ -506,30 +573,27 @@ const ScheduleManage = () => {
         {/* Tab: Bác sĩ trực */}
         {activeTab === "doctors" && (
           <div className="bg-white p-6 rounded-xl shadow-lg">
-            <h2 className="text-2xl font-bold mb-6">Bác sĩ trực theo ngày</h2>
+            <h2 className="text-2xl font-bold mb-6">Bác sĩ trực dự kiến</h2>
 
-            <div className="mb-8">
-              <label className="block text-gray-700 font-medium mb-2">Chọn ngày</label>
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={e => {
-                  const iso = e.target.value;
-                  setSelectedDate(iso);
-                  if (iso) {
-                    const [y, m, d] = iso.split("-");
-                    loadDoctorsByDate(`${d}/${m}/${y}`);
-                  } else {
-                    setDoctorSchedule(null);
-                  }
-                }}
-                className="border p-3 rounded-lg focus:ring-pink-400 focus:border-pink-400"
-              />
-              {selectedDate && (
-                <p className="mt-2 text-sm text-gray-600">
-                  Ngày: {new Date(selectedDate).toLocaleDateString("vi-VN")}
-                </p>
-              )}
+            {/* Sub-tabs */}
+            <div className="flex gap-4 mb-6 border-b pb-2">
+              {[
+                { id: "current", label: "Đang trực" },
+                { id: "next", label: "Sắp tới" },
+                { id: "all", label: "Tất cả" }
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setAdminDocTab(tab.id)}
+                  className={`pb-2 px-4 font-medium transition-all ${
+                    adminDocTab === tab.id
+                      ? "border-b-4 border-pink-500 text-pink-600 font-semibold"
+                      : "text-gray-600 hover:text-gray-800"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
             </div>
 
             {loadingDoctor ? (
@@ -537,27 +601,129 @@ const ScheduleManage = () => {
                 <div className="animate-spin h-10 w-10 border-4 border-pink-500 border-t-transparent rounded-full mx-auto"></div>
                 <p className="mt-4 text-gray-600">Đang tải...</p>
               </div>
-            ) : !doctorSchedule || !Object.keys(doctorSchedule.ca_truc || {}).length ? (
-              <p className="text-center text-gray-500 py-12">
-                {selectedDate ? "Không có bác sĩ trực ngày này" : "Chưa chọn ngày"}
-              </p>
             ) : (
-              <div className="space-y-8">
-                {Object.entries(doctorSchedule.ca_truc).map(([ca, list]) => (
-                  <div key={ca}>
-                    <h3 className="font-bold text-xl mb-3">{ca}</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {list.map((item, idx) => (
-                        <div key={idx} className="p-4 border rounded-lg bg-gray-50">
-                          <div className="font-semibold">{item.bac_si}</div>
-                          <div className="text-sm text-gray-600 mt-1">
-                            {item.lop} • {item.mon || "—"}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead className="bg-pink-600 text-white">
+                    <tr>
+                      <th className="p-4 border-b">Bác sĩ</th>
+                      <th className="p-4 border-b">Khoa</th>
+                      <th className="p-4 border-b">Tình trạng</th>
+                      <th className="p-4 border-b">Ca / Ngày</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(
+                      adminDocTab === "current" ? currentDoctors :
+                      adminDocTab === "next" ? nextDoctors : allDoctors
+                    ).map((doc, idx) => (
+                      <tr key={idx} className="border-b hover:bg-gray-50 transition">
+                        <td className="p-4 font-medium text-gray-900">{doc.ten_bac_si || doc.ho_ten || "—"}</td>
+                        <td className="p-4 text-gray-600">{doc.chuyen_khoa || "—"}</td>
+                        <td className="p-4">
+                          <span className={`px-3 py-1 text-xs font-bold rounded-full ${
+                            doc.isActive ? "bg-emerald-100 text-emerald-700" :
+                            adminDocTab === "next" ? "bg-blue-100 text-blue-700" :
+                            "bg-gray-100 text-gray-600"
+                          }`}>
+                            {doc.isActive ? "Đang trực" :
+                             adminDocTab === "next" ? "Sắp tới" : "Tất cả"}
+                          </span>
+                        </td>
+                        <td className="p-4 text-gray-600">
+                          {adminDocTab !== "all" ? (
+                            <span>{doc.ca_truc} • {doc.ngay}</span>
+                          ) : (
+                            "—"
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                    {(
+                      adminDocTab === "current" ? currentDoctors :
+                      adminDocTab === "next" ? nextDoctors : allDoctors
+                    ).length === 0 && (
+                      <tr>
+                        <td colSpan="4" className="text-center py-8 text-gray-500">
+                          Chưa có dữ liệu cho mục này
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Tab: Gán bác sĩ vào lớp */}
+        {activeTab === "assign-doctors" && (
+          <div className="bg-white p-6 rounded-xl shadow-lg">
+            <h2 className="text-2xl font-bold mb-6">Gán bác sĩ vào lớp học</h2>
+            <p className="text-gray-600 mb-6">
+              Mỗi bác sĩ cần được gán vào một lớp. Khi lớp đó có lịch học,
+              bác sĩ sẽ tự động hiển thị là "đang trực" cho bệnh nhân.
+            </p>
+
+            {loadingDoctors ? (
+              <div className="text-center py-12">
+                <div className="animate-spin h-10 w-10 border-4 border-pink-500 border-t-transparent rounded-full mx-auto"></div>
+                <p className="mt-4 text-gray-600">Đang tải...</p>
+              </div>
+            ) : allDoctors.length === 0 ? (
+              <p className="text-center text-gray-500 py-12">Chưa có bác sĩ nào trong hệ thống</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[700px]">
+                  <thead className="bg-pink-600 text-white">
+                    <tr>
+                      <th className="p-4 text-left">ID</th>
+                      <th className="p-4 text-left">Họ tên</th>
+                      <th className="p-4 text-left">Chuyên khoa</th>
+                      <th className="p-4 text-left">SĐT</th>
+                      <th className="p-4 text-left">Lớp hiện tại</th>
+                      <th className="p-4 text-center">Gán lớp</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {allDoctors.map(doc => {
+                      const currentClass = classes.find(c => c.id_lophoc === doc.id_lophoc);
+                      return (
+                        <tr key={doc.id_bacsi} className="border-b hover:bg-gray-50">
+                          <td className="p-4">{doc.id_bacsi}</td>
+                          <td className="p-4 font-medium">{doc.ho_ten || "—"}</td>
+                          <td className="p-4">{doc.chuyen_khoa || "—"}</td>
+                          <td className="p-4">{doc.so_dien_thoai || "—"}</td>
+                          <td className="p-4">
+                            {currentClass ? (
+                              <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                                {currentClass.ten_lop}
+                              </span>
+                            ) : (
+                              <span className="bg-red-100 text-red-600 px-3 py-1 rounded-full text-sm">
+                                Chưa gán
+                              </span>
+                            )}
+                          </td>
+                          <td className="p-4 text-center">
+                            <select
+                              value={doc.id_lophoc || ""}
+                              onChange={e => handleAssignClass(doc.id_bacsi, e.target.value ? parseInt(e.target.value) : null)}
+                              className="border p-2 rounded focus:ring-pink-400 min-w-[180px]"
+                            >
+                              <option value="">— Chưa gán —</option>
+                              {classes.map(cls => (
+                                <option key={cls.id_lophoc} value={cls.id_lophoc}>
+                                  {cls.ten_lop}
+                                </option>
+                              ))}
+                            </select>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
             )}
           </div>

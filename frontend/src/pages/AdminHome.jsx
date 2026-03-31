@@ -9,8 +9,7 @@ const AdminHome = () => {
     navigate("/login");
   };
 
-  // Giả sử tên admin (có thể lấy từ localStorage hoặc API)
-  const adminName = "Admin Tiểu My";
+  const username = localStorage.getItem("username") || "Admin";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-pink-50 relative overflow-hidden">
@@ -82,7 +81,7 @@ const AdminHome = () => {
         <header className="bg-white shadow-sm border-b border-pink-100">
           <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
             <h2 className="text-2xl md:text-3xl font-bold text-gray-800">
-              Chào mừng quay lại, <span className="text-pink-600">{adminName}</span>
+              Quản trị viên hệ thống: <span className="text-pink-600">{username}</span>
             </h2>
 
             <div className="md:hidden">
