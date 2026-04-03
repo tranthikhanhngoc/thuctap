@@ -167,28 +167,73 @@ const PrescriptionManage = () => {
   };
 
   // Xuất Excel
-  const exportToExcel = () => {
-    const data = medicines.map((m) => ({
-      "Mã thuốc": m.ma_thuoc,
-      "Tên thuốc": m.ten_thuoc,
-      "Loại thuốc": m.loai_thuoc,
-      "Đơn vị": m.don_vi,
-      "Giá nhập": m.gia_nhap,
-      "Giá bán": m.gia_ban,
-      "Số lượng tồn": m.so_luong_ton,
-      "Ngày nhập": m.ngay_nhap,
-      "Hạn sử dụng": m.han_su_dung,
-      "Nhà cung cấp": m.nha_cung_cap,
-      "Mô tả": m.mo_ta || "",
-    }));
+// ==================== XUẤT EXCEL (ĐÃ SỬA) ====================
+const exportToExcel = () => {
+  if (!medicines || medicines.length === 0) {
+    alert("Không có dữ liệu để xuất!");
+    return;
+  }
 
-    const ws = XLSX.utils.json_to_sheet(data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Danh sách thuốc");
-    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
-    saveAs(new Blob([excelBuffer]), `Thuoc_${new Date().toISOString().slice(0,10)}.xlsx`);
-  };
+  const data = medicines.map((m, index) => ({
+    "STT": index + 1,
+    "Mã thuốc": m.ma_thuoc || "",
+    "Tên thuốc": m.ten_thuoc || "",
+    "Loại thuốc": m.loai_thuoc || "",
+    "Đơn vị": m.don_vi || "",
+    "Giá nhập (VNĐ)": Number(m.gia_nhap) || 0,
+    "Giá bán (VNĐ)": Number(m.gia_ban) || 0,
+    "Số lượng tồn": Number(m.so_luong_ton) || 0,        // ← Ép về Number
+    "Ngày nhập": m.ngay_nhap || "",
+    "Hạn sử dụng": m.han_su_dung || "",
+    "Nhà cung cấp": m.nha_cung_cap || "",
+    "Mô tả": m.mo_ta || "",
+  }));
 
+  // Tạo worksheet
+  const ws = XLSX.utils.json_to_sheet(data);
+
+  // === ÉP CÁC CỘT SỐ THÀNH KIỂU NUMBER THỰC SỰ ===
+  const range = XLSX.utils.decode_range(ws['!ref']);
+
+  // Danh sách các cột cần ép thành số (theo thứ tự cột trong object)
+  const numberColumns = ["Giá nhập (VNĐ)", "Giá bán (VNĐ)", "Số lượng tồn"];
+
+  for (let R = range.s.r + 1; R <= range.e.r; ++R) {           // bỏ qua header
+    numberColumns.forEach(colName => {
+      // Tìm vị trí cột theo tên header
+      const colIndex = Object.keys(data[0]).indexOf(colName);
+      if (colIndex === -1) return;
+
+      const cellAddress = XLSX.utils.encode_cell({ r: R, c: colIndex });
+      const cell = ws[cellAddress];
+
+      if (cell) {
+        const numValue = Number(cell.v);
+        if (!isNaN(numValue)) {
+          cell.t = 'n';                    // t = 'n' → number
+          cell.v = numValue;
+          // cell.z = '0';                 // uncomment nếu muốn format không dấu phẩy
+          // cell.z = '#,##0';             // có dấu phẩy hàng nghìn (khuyến nghị)
+        }
+      }
+    });
+  }
+
+  // Auto width cột (có thể tinh chỉnh thêm)
+  const colWidths = Object.keys(data[0]).map((key) => ({
+    wch: Math.max(key.length + 8, 15),   // tăng độ rộng một chút
+  }));
+  ws["!cols"] = colWidths;
+
+  // Tạo workbook và xuất file
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Danh sách thuốc");
+
+  const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+  const fileName = `DanhSachThuoc_${new Date().toISOString().slice(0, 10)}.xlsx`;
+
+  saveAs(new Blob([excelBuffer]), fileName);
+};
   // Nhập Excel
   const importFromExcel = (e) => {
     const file = e.target.files[0];

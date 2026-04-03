@@ -384,3 +384,627 @@ Traceback (most recent call last):
 AttributeError: module 'bcrypt' has no attribute '__about__'
 2026-03-31 14:44:39,616 DEBUG detected 'bcrypt' backend, version '<unknown>'
 2026-03-31 14:44:39,616 DEBUG 'bcrypt' backend lacks $2$ support, enabling workaround
+2026-03-31 14:54:08,303 INFO API current-and-next g\u1ecdi, days_ahead=5, today=2026-03-31
+2026-03-31 14:54:08,303 INFO Query bác s\u0129 tr\u1ef1c ngày: 31/03/2026
+2026-03-31 14:54:08,312 INFO Tìm th\u1ea5y LichHoc ID=26 - Tuan 30/03 - 03/04/2026
+2026-03-31 14:54:08,312 DEBUG Th\u1ee9 trong tu\u1ea7n: 2
+2026-03-31 14:54:08,320 INFO Tìm th\u1ea5y 2 chi ti\u1ebft l\u1ecbch ngày 31/03/2026
+2026-03-31 14:54:08,330 INFO Bác s\u0129 tr\u1ef1c: Bac Si 1 | Ca: Sáng | L\u1edbp: TC LLCT K143/CT
+2026-03-31 14:54:08,330 INFO Bác s\u0129 tr\u1ef1c: Bac Si 1 | Ca: Chi\u1ec1u | L\u1edbp: TC LLCT K143/CT
+2026-03-31 14:54:08,330 INFO Query bác s\u0129 tr\u1ef1c ngày: 01/04/2026
+2026-03-31 14:54:08,330 INFO Tìm th\u1ea5y LichHoc ID=26 - Tuan 30/03 - 03/04/2026
+2026-03-31 14:54:08,330 DEBUG Th\u1ee9 trong tu\u1ea7n: 3
+2026-03-31 14:54:08,330 INFO Tìm th\u1ea5y 1 chi ti\u1ebft l\u1ecbch ngày 01/04/2026
+2026-03-31 14:54:08,330 INFO Bác s\u0129 tr\u1ef1c: Bac Si 1 | Ca: Sáng | L\u1edbp: TC LLCT K143/CT
+2026-03-31 14:54:08,330 INFO Query bác s\u0129 tr\u1ef1c ngày: 02/04/2026
+2026-03-31 14:54:08,343 INFO Tìm th\u1ea5y LichHoc ID=26 - Tuan 30/03 - 03/04/2026
+2026-03-31 14:54:08,343 DEBUG Th\u1ee9 trong tu\u1ea7n: 4
+2026-03-31 14:54:08,343 INFO Không có l\u1edbp nào có l\u1ecbch ngày 02/04/2026
+2026-03-31 14:54:08,343 INFO Query bác s\u0129 tr\u1ef1c ngày: 03/04/2026
+2026-03-31 14:54:08,352 INFO Tìm th\u1ea5y LichHoc ID=26 - Tuan 30/03 - 03/04/2026
+2026-03-31 14:54:08,352 DEBUG Th\u1ee9 trong tu\u1ea7n: 5
+2026-03-31 14:54:08,352 INFO Không có l\u1edbp nào có l\u1ecbch ngày 03/04/2026
+2026-03-31 14:54:08,352 INFO Query bác s\u0129 tr\u1ef1c ngày: 04/04/2026
+2026-03-31 14:54:08,352 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 04/04/2026
+2026-03-31 14:54:08,352 INFO Query bác s\u0129 tr\u1ef1c ngày: 05/04/2026
+2026-03-31 14:54:08,360 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 05/04/2026
+2026-03-31 14:54:08,361 INFO Tr\u1ea3 v\u1ec1: current=2, upcoming=1
+2026-03-31 14:54:08,361 INFO API current-and-next g\u1ecdi, days_ahead=5, today=2026-03-31
+2026-03-31 14:54:08,361 INFO Query bác s\u0129 tr\u1ef1c ngày: 31/03/2026
+2026-03-31 14:54:08,376 INFO Tìm th\u1ea5y LichHoc ID=26 - Tuan 30/03 - 03/04/2026
+2026-03-31 14:54:08,377 DEBUG Th\u1ee9 trong tu\u1ea7n: 2
+2026-03-31 14:54:08,380 INFO Tìm th\u1ea5y 2 chi ti\u1ebft l\u1ecbch ngày 31/03/2026
+2026-03-31 14:54:08,385 INFO Bác s\u0129 tr\u1ef1c: Bac Si 1 | Ca: Sáng | L\u1edbp: TC LLCT K143/CT
+2026-03-31 14:54:08,385 INFO Bác s\u0129 tr\u1ef1c: Bac Si 1 | Ca: Chi\u1ec1u | L\u1edbp: TC LLCT K143/CT
+2026-03-31 14:54:08,385 INFO Query bác s\u0129 tr\u1ef1c ngày: 01/04/2026
+2026-03-31 14:54:08,385 INFO Tìm th\u1ea5y LichHoc ID=26 - Tuan 30/03 - 03/04/2026
+2026-03-31 14:54:08,392 DEBUG Th\u1ee9 trong tu\u1ea7n: 3
+2026-03-31 14:54:08,395 INFO Tìm th\u1ea5y 1 chi ti\u1ebft l\u1ecbch ngày 01/04/2026
+2026-03-31 14:54:08,395 INFO Bác s\u0129 tr\u1ef1c: Bac Si 1 | Ca: Sáng | L\u1edbp: TC LLCT K143/CT
+2026-03-31 14:54:08,395 INFO Query bác s\u0129 tr\u1ef1c ngày: 02/04/2026
+2026-03-31 14:54:08,395 INFO Tìm th\u1ea5y LichHoc ID=26 - Tuan 30/03 - 03/04/2026
+2026-03-31 14:54:08,395 DEBUG Th\u1ee9 trong tu\u1ea7n: 4
+2026-03-31 14:54:08,395 INFO Không có l\u1edbp nào có l\u1ecbch ngày 02/04/2026
+2026-03-31 14:54:08,395 INFO Query bác s\u0129 tr\u1ef1c ngày: 03/04/2026
+2026-03-31 14:54:08,408 INFO Tìm th\u1ea5y LichHoc ID=26 - Tuan 30/03 - 03/04/2026
+2026-03-31 14:54:08,408 DEBUG Th\u1ee9 trong tu\u1ea7n: 5
+2026-03-31 14:54:08,411 INFO Không có l\u1edbp nào có l\u1ecbch ngày 03/04/2026
+2026-03-31 14:54:08,411 INFO Query bác s\u0129 tr\u1ef1c ngày: 04/04/2026
+2026-03-31 14:54:08,411 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 04/04/2026
+2026-03-31 14:54:08,411 INFO Query bác s\u0129 tr\u1ef1c ngày: 05/04/2026
+2026-03-31 14:54:08,411 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 05/04/2026
+2026-03-31 14:54:08,411 INFO Tr\u1ea3 v\u1ec1: current=2, upcoming=1
+2026-03-31 14:55:01,728 INFO Query l\u1ecbch l\u1edbp ID=32 t\u1eeb 04/05/2026 \u2192 08/05/2026
+2026-03-31 14:55:01,728 INFO Query l\u1ecbch l\u1edbp ID=34 t\u1eeb 04/05/2026 \u2192 08/05/2026
+2026-03-31 14:55:01,728 INFO Query l\u1ecbch l\u1edbp ID=33 t\u1eeb 04/05/2026 \u2192 08/05/2026
+2026-03-31 14:55:01,728 INFO Query l\u1ecbch l\u1edbp ID=35 t\u1eeb 04/05/2026 \u2192 08/05/2026
+2026-03-31 14:55:01,741 INFO Query l\u1ecbch l\u1edbp ID=37 t\u1eeb 04/05/2026 \u2192 08/05/2026
+2026-03-31 14:55:01,750 INFO Query l\u1ecbch l\u1edbp ID=36 t\u1eeb 04/05/2026 \u2192 08/05/2026
+2026-03-31 14:55:01,755 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp CC LLCT K18B6-CT
+2026-03-31 14:55:01,760 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp CC LLCT K19B1-CT
+2026-03-31 14:55:01,767 INFO Query l\u1ecbch l\u1edbp ID=38 t\u1eeb 04/05/2026 \u2192 08/05/2026
+2026-03-31 14:55:01,769 INFO Query l\u1ecbch l\u1edbp ID=39 t\u1eeb 04/05/2026 \u2192 08/05/2026
+2026-03-31 14:55:01,774 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K140/CT
+2026-03-31 14:55:01,779 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K141/CT
+2026-03-31 14:55:01,786 INFO Query l\u1ecbch l\u1edbp ID=40 t\u1eeb 04/05/2026 \u2192 08/05/2026
+2026-03-31 14:55:01,792 INFO Query l\u1ecbch l\u1edbp ID=41 t\u1eeb 04/05/2026 \u2192 08/05/2026
+2026-03-31 14:55:01,798 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K142/CT
+2026-03-31 14:55:01,802 INFO Tr\u1ea3 v\u1ec1 4 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K143/CT
+2026-03-31 14:55:01,812 INFO Query l\u1ecbch l\u1edbp ID=43 t\u1eeb 04/05/2026 \u2192 08/05/2026
+2026-03-31 14:55:01,814 INFO Query l\u1ecbch l\u1edbp ID=42 t\u1eeb 04/05/2026 \u2192 08/05/2026
+2026-03-31 14:55:01,827 INFO Tr\u1ea3 v\u1ec1 2 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K145/CT
+2026-03-31 14:55:01,827 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp CC LLCT K18B2-ST
+2026-03-31 14:55:01,827 INFO Tr\u1ea3 v\u1ec1 3 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K144/CT
+2026-03-31 14:55:01,842 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp CC LLCT K19B2-CT
+2026-03-31 14:55:01,843 INFO Query l\u1ecbch l\u1edbp ID=44 t\u1eeb 04/05/2026 \u2192 08/05/2026
+2026-03-31 14:55:01,859 INFO Tr\u1ea3 v\u1ec1 5 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT TT K39/CT
+2026-03-31 14:55:01,865 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT TT K38/CT
+2026-03-31 14:55:01,868 INFO Tr\u1ea3 v\u1ec1 6 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K146/CT
+2026-03-31 14:55:01,868 INFO Query l\u1ecbch l\u1edbp ID=45 t\u1eeb 04/05/2026 \u2192 08/05/2026
+2026-03-31 14:55:01,883 INFO Query l\u1ecbch l\u1edbp ID=46 t\u1eeb 04/05/2026 \u2192 08/05/2026
+2026-03-31 14:55:01,883 INFO Query l\u1ecbch l\u1edbp ID=47 t\u1eeb 04/05/2026 \u2192 08/05/2026
+2026-03-31 14:55:01,886 INFO Tr\u1ea3 v\u1ec1 4 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K147/CT
+2026-03-31 14:55:01,899 INFO Tr\u1ea3 v\u1ec1 5 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K150-G1/25
+2026-03-31 14:55:01,899 INFO Tr\u1ea3 v\u1ec1 5 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K149-G/25
+2026-03-31 14:55:01,909 INFO Query l\u1ecbch l\u1edbp ID=48 t\u1eeb 04/05/2026 \u2192 08/05/2026
+2026-03-31 14:55:01,918 INFO Query l\u1ecbch l\u1edbp ID=49 t\u1eeb 04/05/2026 \u2192 08/05/2026
+2026-03-31 14:55:01,927 INFO Query l\u1ecbch l\u1edbp ID=50 t\u1eeb 04/05/2026 \u2192 08/05/2026
+2026-03-31 14:55:01,927 INFO Tr\u1ea3 v\u1ec1 5 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K151-G2/25
+2026-03-31 14:55:01,942 INFO Query l\u1ecbch l\u1edbp ID=52 t\u1eeb 04/05/2026 \u2192 08/05/2026
+2026-03-31 14:55:01,942 INFO Tr\u1ea3 v\u1ec1 4 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K152-YT/25
+2026-03-31 14:55:01,943 INFO Query l\u1ecbch l\u1edbp ID=51 t\u1eeb 04/05/2026 \u2192 08/05/2026
+2026-03-31 14:55:01,947 INFO Tr\u1ea3 v\u1ec1 5 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K153-G3/25
+2026-03-31 14:55:01,947 INFO Query l\u1ecbch l\u1edbp ID=53 t\u1eeb 04/05/2026 \u2192 08/05/2026
+2026-03-31 14:55:01,956 INFO Tr\u1ea3 v\u1ec1 2 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT KTT K142/ST
+2026-03-31 14:55:01,964 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT KTT K141/ST
+2026-03-31 14:55:01,975 INFO Tr\u1ea3 v\u1ec1 5 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K01B/CT25
+2026-03-31 14:55:01,975 INFO Query l\u1ecbch l\u1edbp ID=54 t\u1eeb 04/05/2026 \u2192 08/05/2026
+2026-03-31 14:55:01,991 INFO Tr\u1ea3 v\u1ec1 5 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K02B/CT25
+2026-03-31 14:55:01,991 INFO Query l\u1ecbch l\u1edbp ID=55 t\u1eeb 04/05/2026 \u2192 08/05/2026
+2026-03-31 14:55:01,997 INFO Tr\u1ea3 v\u1ec1 6 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K01A/CT25
+2026-04-03 14:27:25,325 WARNING (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "C:\Users\HP\AppData\Local\Programs\Python\Python311\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2026-04-03 14:27:25,332 DEBUG detected 'bcrypt' backend, version '<unknown>'
+2026-04-03 14:27:25,332 DEBUG 'bcrypt' backend lacks $2$ support, enabling workaround
+2026-04-03 15:02:43,723 INFO API current-and-next g\u1ecdi, days_ahead=5, today=2026-04-03
+2026-04-03 15:02:43,725 INFO Query bác s\u0129 tr\u1ef1c ngày: 03/04/2026
+2026-04-03 15:02:43,739 INFO Tìm th\u1ea5y LichHoc ID=26 - Tuan 30/03 - 03/04/2026
+2026-04-03 15:02:43,739 DEBUG Th\u1ee9 trong tu\u1ea7n: 5
+2026-04-03 15:02:43,753 INFO Không có l\u1edbp nào có l\u1ecbch ngày 03/04/2026
+2026-04-03 15:02:43,753 INFO Query bác s\u0129 tr\u1ef1c ngày: 04/04/2026
+2026-04-03 15:02:43,753 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 04/04/2026
+2026-04-03 15:02:43,753 INFO Query bác s\u0129 tr\u1ef1c ngày: 05/04/2026
+2026-04-03 15:02:43,753 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 05/04/2026
+2026-04-03 15:02:43,753 INFO Query bác s\u0129 tr\u1ef1c ngày: 06/04/2026
+2026-04-03 15:02:43,760 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 06/04/2026
+2026-04-03 15:02:43,760 INFO Query bác s\u0129 tr\u1ef1c ngày: 07/04/2026
+2026-04-03 15:02:43,760 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 07/04/2026
+2026-04-03 15:02:43,760 INFO Query bác s\u0129 tr\u1ef1c ngày: 08/04/2026
+2026-04-03 15:02:43,766 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 08/04/2026
+2026-04-03 15:02:43,768 INFO Tr\u1ea3 v\u1ec1: current=0, upcoming=0
+2026-04-03 15:02:43,769 INFO API current-and-next g\u1ecdi, days_ahead=5, today=2026-04-03
+2026-04-03 15:02:43,769 INFO Query bác s\u0129 tr\u1ef1c ngày: 03/04/2026
+2026-04-03 15:02:43,769 INFO Tìm th\u1ea5y LichHoc ID=26 - Tuan 30/03 - 03/04/2026
+2026-04-03 15:02:43,780 DEBUG Th\u1ee9 trong tu\u1ea7n: 5
+2026-04-03 15:02:43,782 INFO Không có l\u1edbp nào có l\u1ecbch ngày 03/04/2026
+2026-04-03 15:02:43,786 INFO Query bác s\u0129 tr\u1ef1c ngày: 04/04/2026
+2026-04-03 15:02:43,787 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 04/04/2026
+2026-04-03 15:02:43,787 INFO Query bác s\u0129 tr\u1ef1c ngày: 05/04/2026
+2026-04-03 15:02:43,791 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 05/04/2026
+2026-04-03 15:02:43,791 INFO Query bác s\u0129 tr\u1ef1c ngày: 06/04/2026
+2026-04-03 15:02:43,791 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 06/04/2026
+2026-04-03 15:02:43,791 INFO Query bác s\u0129 tr\u1ef1c ngày: 07/04/2026
+2026-04-03 15:02:43,797 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 07/04/2026
+2026-04-03 15:02:43,797 INFO Query bác s\u0129 tr\u1ef1c ngày: 08/04/2026
+2026-04-03 15:02:43,800 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 08/04/2026
+2026-04-03 15:02:43,800 INFO Tr\u1ea3 v\u1ec1: current=0, upcoming=0
+2026-04-03 15:04:01,134 INFO Query l\u1ecbch l\u1edbp ID=32 t\u1eeb 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,149 INFO Không tìm th\u1ea5y l\u1ecbch tu\u1ea7n 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,149 INFO Query l\u1ecbch l\u1edbp ID=33 t\u1eeb 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,163 INFO Query l\u1ecbch l\u1edbp ID=34 t\u1eeb 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,165 INFO Không tìm th\u1ea5y l\u1ecbch tu\u1ea7n 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,172 INFO Query l\u1ecbch l\u1edbp ID=35 t\u1eeb 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,188 INFO Query l\u1ecbch l\u1edbp ID=36 t\u1eeb 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,197 INFO Không tìm th\u1ea5y l\u1ecbch tu\u1ea7n 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,242 INFO Query l\u1ecbch l\u1edbp ID=38 t\u1eeb 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,246 INFO Query l\u1ecbch l\u1edbp ID=39 t\u1eeb 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,248 INFO Query l\u1ecbch l\u1edbp ID=37 t\u1eeb 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,250 INFO Không tìm th\u1ea5y l\u1ecbch tu\u1ea7n 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,250 INFO Query l\u1ecbch l\u1edbp ID=40 t\u1eeb 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,260 INFO Không tìm th\u1ea5y l\u1ecbch tu\u1ea7n 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,269 INFO Query l\u1ecbch l\u1edbp ID=42 t\u1eeb 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,269 INFO Query l\u1ecbch l\u1edbp ID=41 t\u1eeb 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,276 INFO Không tìm th\u1ea5y l\u1ecbch tu\u1ea7n 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,277 INFO Không tìm th\u1ea5y l\u1ecbch tu\u1ea7n 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,288 INFO Query l\u1ecbch l\u1edbp ID=43 t\u1eeb 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,288 INFO Query l\u1ecbch l\u1edbp ID=44 t\u1eeb 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,291 INFO Không tìm th\u1ea5y l\u1ecbch tu\u1ea7n 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,296 INFO Không tìm th\u1ea5y l\u1ecbch tu\u1ea7n 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,299 INFO Không tìm th\u1ea5y l\u1ecbch tu\u1ea7n 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,300 INFO Không tìm th\u1ea5y l\u1ecbch tu\u1ea7n 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,311 INFO Query l\u1ecbch l\u1edbp ID=46 t\u1eeb 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,312 INFO Query l\u1ecbch l\u1edbp ID=45 t\u1eeb 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,318 INFO Query l\u1ecbch l\u1edbp ID=48 t\u1eeb 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,320 INFO Query l\u1ecbch l\u1edbp ID=47 t\u1eeb 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,322 INFO Không tìm th\u1ea5y l\u1ecbch tu\u1ea7n 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,322 INFO Không tìm th\u1ea5y l\u1ecbch tu\u1ea7n 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,331 INFO Không tìm th\u1ea5y l\u1ecbch tu\u1ea7n 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,331 INFO Không tìm th\u1ea5y l\u1ecbch tu\u1ea7n 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,338 INFO Không tìm th\u1ea5y l\u1ecbch tu\u1ea7n 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,338 INFO Không tìm th\u1ea5y l\u1ecbch tu\u1ea7n 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,354 INFO Query l\u1ecbch l\u1edbp ID=49 t\u1eeb 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,354 INFO Không tìm th\u1ea5y l\u1ecbch tu\u1ea7n 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,354 INFO Query l\u1ecbch l\u1edbp ID=51 t\u1eeb 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,354 INFO Query l\u1ecbch l\u1edbp ID=50 t\u1eeb 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,369 INFO Query l\u1ecbch l\u1edbp ID=53 t\u1eeb 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,369 INFO Query l\u1ecbch l\u1edbp ID=54 t\u1eeb 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,369 INFO Query l\u1ecbch l\u1edbp ID=52 t\u1eeb 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,382 INFO Không tìm th\u1ea5y l\u1ecbch tu\u1ea7n 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,382 INFO Không tìm th\u1ea5y l\u1ecbch tu\u1ea7n 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,386 INFO Không tìm th\u1ea5y l\u1ecbch tu\u1ea7n 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,393 INFO Không tìm th\u1ea5y l\u1ecbch tu\u1ea7n 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,393 INFO Không tìm th\u1ea5y l\u1ecbch tu\u1ea7n 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,402 INFO Query l\u1ecbch l\u1edbp ID=55 t\u1eeb 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:01,411 INFO Không tìm th\u1ea5y l\u1ecbch tu\u1ea7n 16/03/2026 \u2192 20/03/2026
+2026-04-03 15:04:06,948 INFO Query l\u1ecbch l\u1edbp ID=32 t\u1eeb 23/03/2026 \u2192 27/03/2026
+2026-04-03 15:04:06,965 INFO Query l\u1ecbch l\u1edbp ID=33 t\u1eeb 23/03/2026 \u2192 27/03/2026
+2026-04-03 15:04:06,965 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp CC LLCT K18B6-CT
+2026-04-03 15:04:06,981 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp CC LLCT K18B2-ST
+2026-04-03 15:04:06,997 INFO Query l\u1ecbch l\u1edbp ID=34 t\u1eeb 23/03/2026 \u2192 27/03/2026
+2026-04-03 15:04:06,998 INFO Query l\u1ecbch l\u1edbp ID=35 t\u1eeb 23/03/2026 \u2192 27/03/2026
+2026-04-03 15:04:07,011 INFO Query l\u1ecbch l\u1edbp ID=38 t\u1eeb 23/03/2026 \u2192 27/03/2026
+2026-04-03 15:04:07,011 INFO Query l\u1ecbch l\u1edbp ID=39 t\u1eeb 23/03/2026 \u2192 27/03/2026
+2026-04-03 15:04:07,011 INFO Query l\u1ecbch l\u1edbp ID=37 t\u1eeb 23/03/2026 \u2192 27/03/2026
+2026-04-03 15:04:07,014 INFO Query l\u1ecbch l\u1edbp ID=36 t\u1eeb 23/03/2026 \u2192 27/03/2026
+2026-04-03 15:04:07,014 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp CC LLCT K19B1-CT
+2026-04-03 15:04:07,031 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp CC LLCT K19B2-CT
+2026-04-03 15:04:07,034 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K140/CT
+2026-04-03 15:04:07,034 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K141/CT
+2026-04-03 15:04:07,044 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT TT K39/CT
+2026-04-03 15:04:07,058 INFO Query l\u1ecbch l\u1edbp ID=41 t\u1eeb 23/03/2026 \u2192 27/03/2026
+2026-04-03 15:04:07,058 INFO Query l\u1ecbch l\u1edbp ID=40 t\u1eeb 23/03/2026 \u2192 27/03/2026
+2026-04-03 15:04:07,066 INFO Query l\u1ecbch l\u1edbp ID=44 t\u1eeb 23/03/2026 \u2192 27/03/2026
+2026-04-03 15:04:07,066 INFO Query l\u1ecbch l\u1edbp ID=43 t\u1eeb 23/03/2026 \u2192 27/03/2026
+2026-04-03 15:04:07,077 INFO Query l\u1ecbch l\u1edbp ID=42 t\u1eeb 23/03/2026 \u2192 27/03/2026
+2026-04-03 15:04:07,090 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K143/CT
+2026-04-03 15:04:07,090 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K142/CT
+2026-04-03 15:04:07,090 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K146/CT
+2026-04-03 15:04:07,098 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K144/CT
+2026-04-03 15:04:07,105 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K145/CT
+2026-04-03 15:04:07,121 INFO Query l\u1ecbch l\u1edbp ID=45 t\u1eeb 23/03/2026 \u2192 27/03/2026
+2026-04-03 15:04:07,130 INFO Query l\u1ecbch l\u1edbp ID=46 t\u1eeb 23/03/2026 \u2192 27/03/2026
+2026-04-03 15:04:07,130 INFO Query l\u1ecbch l\u1edbp ID=49 t\u1eeb 23/03/2026 \u2192 27/03/2026
+2026-04-03 15:04:07,137 INFO Query l\u1ecbch l\u1edbp ID=47 t\u1eeb 23/03/2026 \u2192 27/03/2026
+2026-04-03 15:04:07,148 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K147/CT
+2026-04-03 15:04:07,148 INFO Query l\u1ecbch l\u1edbp ID=48 t\u1eeb 23/03/2026 \u2192 27/03/2026
+2026-04-03 15:04:07,154 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K149-G/25
+2026-04-03 15:04:07,154 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K152-YT/25
+2026-04-03 15:04:07,162 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K150-G1/25
+2026-04-03 15:04:07,162 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT TT K38/CT
+2026-04-03 15:04:07,177 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K151-G2/25
+2026-04-03 15:04:07,188 INFO Query l\u1ecbch l\u1edbp ID=50 t\u1eeb 23/03/2026 \u2192 27/03/2026
+2026-04-03 15:04:07,204 INFO Query l\u1ecbch l\u1edbp ID=51 t\u1eeb 23/03/2026 \u2192 27/03/2026
+2026-04-03 15:04:07,204 INFO Query l\u1ecbch l\u1edbp ID=52 t\u1eeb 23/03/2026 \u2192 27/03/2026
+2026-04-03 15:04:07,204 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K153-G3/25
+2026-04-03 15:04:07,204 INFO Query l\u1ecbch l\u1edbp ID=53 t\u1eeb 23/03/2026 \u2192 27/03/2026
+2026-04-03 15:04:07,204 INFO Query l\u1ecbch l\u1edbp ID=54 t\u1eeb 23/03/2026 \u2192 27/03/2026
+2026-04-03 15:04:07,204 INFO Query l\u1ecbch l\u1edbp ID=55 t\u1eeb 23/03/2026 \u2192 27/03/2026
+2026-04-03 15:04:07,218 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT KTT K142/ST
+2026-04-03 15:04:07,218 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K01B/CT25
+2026-04-03 15:04:07,218 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT KTT K141/ST
+2026-04-03 15:04:07,238 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K02B/CT25
+2026-04-03 15:04:07,319 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K01A/CT25
+2026-04-03 15:07:21,738 DEBUG Calling on_part_begin with no data
+2026-04-03 15:07:21,739 DEBUG Calling on_header_field with data[42:61]
+2026-04-03 15:07:21,741 DEBUG Calling on_header_value with data[63:128]
+2026-04-03 15:07:21,742 DEBUG Calling on_header_end with no data
+2026-04-03 15:07:21,742 DEBUG Calling on_header_field with data[130:142]
+2026-04-03 15:07:21,743 DEBUG Calling on_header_value with data[144:168]
+2026-04-03 15:07:21,743 DEBUG Calling on_header_end with no data
+2026-04-03 15:07:21,743 DEBUG Calling on_headers_finished with no data
+2026-04-03 15:07:21,745 DEBUG Calling on_part_data with data[172:5689]
+2026-04-03 15:07:21,747 DEBUG Calling on_part_data with data[0:1]
+2026-04-03 15:07:21,752 DEBUG Calling on_part_data with data[5690:81920]
+2026-04-03 15:07:21,757 DEBUG Calling on_part_data with data[0:47276]
+2026-04-03 15:07:21,761 DEBUG Calling on_part_end with no data
+2026-04-03 15:07:21,761 DEBUG Calling on_end with no data
+2026-04-03 15:07:21,773 INFO B\u1eaft \u0111\u1ea7u upload l\u1ecbch tu\u1ea7n: 30/03/2026 \u2192 03/04/2026
+2026-04-03 15:07:21,773 INFO Parsed: start=2026-03-30, end=2026-04-03
+2026-04-03 15:07:21,787 INFO T\u1ea1o LichHoc m\u1edbi ID=50
+2026-04-03 15:07:21,787 INFO File format detected: XLS, s\u1eed d\u1ee5ng engine: xlrd
+2026-04-03 15:07:22,011 INFO Tìm th\u1ea5y sheet h\u1ee3p l\u1ec7: Sheet (rows=163, cols=9)
+2026-04-03 15:07:22,025 INFO Tìm th\u1ea5y header \u1edf dòng 7
+2026-04-03 15:07:22,025 INFO T\u1ed5ng dòng d\u1eef li\u1ec7u: 155, C\u1ed9t: ['Stt', 'L\u1edbp', 'Th\u1ee9 Hai', 'Th\u1ee9 Ba', 'Th\u1ee9 T\u01b0', 'Th\u1ee9 N\u0103m', 'Th\u1ee9 Sáu', 'Th\u1ee9 B\u1ea3y', 'Ch\u1ee7 Nh\u1eadt']
+2026-04-03 15:07:22,050 INFO Tìm th\u1ea5y 24 l\u1edbp trong file Excel
+2026-04-03 15:07:22,072 DEBUG B\u1ece QUA cell không rõ ca: ts lê v\u0103n tuyên
+2026-04-03 15:07:22,072 DEBUG B\u1ece QUA cell không rõ ca: (tr\u01b0\u1edfng phòng)
+2026-04-03 15:07:22,090 INFO Thêm: TC LLCT TT K39/CT | Th\u1ee9 Hai | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,093 DEBUG B\u1ece QUA cell không rõ ca: ths nguy\u1ec5n t hoàng minh
+2026-04-03 15:07:22,095 INFO Thêm: TC LLCT TT K39/CT | Th\u1ee9 Ba | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,095 DEBUG B\u1ece QUA cell không rõ ca: ths tr\u1ea7n thúy ph\u01b0\u1ee3ng
+2026-04-03 15:07:22,095 DEBUG B\u1ece QUA cell không rõ ca: (phó tr\u01b0\u1edfng phòng)
+2026-04-03 15:07:22,095 INFO Thêm: TC LLCT TT K39/CT | Th\u1ee9 T\u01b0 | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,103 DEBUG B\u1ece QUA cell không rõ ca: ths nguy\u1ec5n th\u1ecb n\u1ee5
+2026-04-03 15:07:22,103 DEBUG B\u1ece QUA cell không rõ ca: (tr\u01b0\u1edfng khoa)
+2026-04-03 15:07:22,104 INFO Thêm: TC LLCT TT K39/CT | Th\u1ee9 N\u0103m | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,104 DEBUG B\u1ece QUA cell không rõ ca: ths lê chí tâm
+2026-04-03 15:07:22,107 DEBUG B\u1ece QUA cell không rõ ca: (phó tr\u01b0\u1edfng phòng)
+2026-04-03 15:07:22,109 INFO Thêm: TC LLCT TT K39/CT | Th\u1ee9 Sáu | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,136 INFO T\u1ea1o l\u1edbp m\u1edbi: TC LLCT K143/CT (ID=56)
+2026-04-03 15:07:22,152 DEBUG B\u1ece QUA cell không rõ ca: h\u1ed9i \u0111\u1ed3ng thi t\u1ed1t nghi\u1ec7p
+2026-04-03 15:07:22,152 DEBUG B\u1ece QUA cell không rõ ca: h\u1ed9i \u0111\u1ed3ng thi t\u1ed1t nghi\u1ec7p
+2026-04-03 15:07:22,152 INFO Thêm: TC LLCT K143/CT | Th\u1ee9 T\u01b0 | S. | GV: N/A
+2026-04-03 15:07:22,152 INFO Thêm: TC LLCT K143/CT | Th\u1ee9 T\u01b0 | C. | GV: N/A
+2026-04-03 15:07:22,152 DEBUG B\u1ece QUA cell không rõ ca: h\u1ed9i \u0111\u1ed3ng thi t\u1ed1t nghi\u1ec7p
+2026-04-03 15:07:22,152 INFO Thêm: TC LLCT K143/CT | Th\u1ee9 N\u0103m | S. | GV: N/A
+2026-04-03 15:07:22,152 INFO Thêm: TC LLCT K143/CT | Th\u1ee9 N\u0103m | C. | GV: N/A
+2026-04-03 15:07:22,168 DEBUG B\u1ece QUA cell không rõ ca: cbct: t. cúc, p. ki\u1ec1u
+2026-04-03 15:07:22,168 DEBUG B\u1ece QUA cell không rõ ca: (phòng ql\u0111t&nckh)
+2026-04-03 15:07:22,168 DEBUG B\u1ece QUA cell không rõ ca: ts tô tu\u1ea5n \u0111\u1ea1t
+2026-04-03 15:07:22,168 INFO Thêm: TC LLCT K144/CT | Th\u1ee9 T\u01b0 | S. | GV: N/A
+2026-04-03 15:07:22,168 INFO Thêm: TC LLCT K144/CT | Th\u1ee9 T\u01b0 | C. | GV: N/A
+2026-04-03 15:07:22,168 DEBUG B\u1ece QUA cell không rõ ca: ts tô tu\u1ea5n \u0111\u1ea1t
+2026-04-03 15:07:22,168 INFO Thêm: TC LLCT K144/CT | Th\u1ee9 N\u0103m | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,185 DEBUG B\u1ece QUA cell không rõ ca: ths võ th\u1ecb bích di\u1ec5m
+2026-04-03 15:07:22,185 INFO Thêm: TC LLCT K145/CT | Th\u1ee9 N\u0103m | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,185 DEBUG B\u1ece QUA cell không rõ ca: ths nguy\u1ec5n th\u1ecb ng\u1ecdc th\u01a1
+2026-04-03 15:07:22,185 INFO Thêm: TC LLCT K145/CT | Th\u1ee9 Sáu | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,185 DEBUG B\u1ece QUA cell không rõ ca: ths phan ng\u1ecdc y\u1ebfn
+2026-04-03 15:07:22,185 DEBUG B\u1ece QUA cell không rõ ca: (phó tr\u01b0\u1edfng khoa)
+2026-04-03 15:07:22,185 INFO Thêm: TC LLCT K146/CT | Th\u1ee9 Hai | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,200 DEBUG B\u1ece QUA cell không rõ ca: ths ngô h\u1ed3ng phong
+2026-04-03 15:07:22,200 INFO Thêm: TC LLCT K146/CT | Th\u1ee9 Ba | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,200 DEBUG B\u1ece QUA cell không rõ ca: ths ngô h\u1ed3ng phong
+2026-04-03 15:07:22,200 DEBUG B\u1ece QUA cell không rõ ca: ths d\u01b0\u01a1ng th\u1ecb thu h\u1eb1ng
+2026-04-03 15:07:22,200 INFO Thêm: TC LLCT K146/CT | Th\u1ee9 T\u01b0 | S. | GV: N/A
+2026-04-03 15:07:22,200 INFO Thêm: TC LLCT K146/CT | Th\u1ee9 T\u01b0 | C. | GV: N/A
+2026-04-03 15:07:22,200 DEBUG B\u1ece QUA cell không rõ ca: ths mai v\u0103n l\u1ee3i
+2026-04-03 15:07:22,200 DEBUG B\u1ece QUA cell không rõ ca: (tr\u01b0\u1edfng khoa)
+2026-04-03 15:07:22,200 INFO Thêm: TC LLCT K146/CT | Th\u1ee9 N\u0103m | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,200 DEBUG B\u1ece QUA cell không rõ ca: ths ph\u1ea1m th\u1ecb h\u1ea3i y\u1ebfn
+2026-04-03 15:07:22,216 INFO Thêm: TC LLCT K146/CT | Th\u1ee9 Sáu | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,216 DEBUG B\u1ece QUA cell không rõ ca: cbct: d. tiên, t. di\u1ec5m
+2026-04-03 15:07:22,216 DEBUG B\u1ece QUA cell không rõ ca: (phòng ql\u0111t&nckh)
+2026-04-03 15:07:22,216 INFO Thêm: TC LLCT K147/CT | Th\u1ee9 T\u01b0 | S. | GV: N/A
+2026-04-03 15:07:22,216 INFO Thêm: TC LLCT K147/CT | Th\u1ee9 T\u01b0 | C. | GV: N/A
+2026-04-03 15:07:22,216 DEBUG B\u1ece QUA cell không rõ ca: ths nguy\u1ec5n trung tín
+2026-04-03 15:07:22,216 INFO Thêm: TC LLCT K147/CT | Th\u1ee9 N\u0103m | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,216 DEBUG B\u1ece QUA cell không rõ ca: ths nguy\u1ec5n trung tín
+2026-04-03 15:07:22,232 INFO Thêm: TC LLCT K147/CT | Th\u1ee9 Sáu | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,232 DEBUG B\u1ece QUA cell không rõ ca: ths nguy\u1ec5n ng\u1ecdc v\u1eb9n
+2026-04-03 15:07:22,232 INFO Thêm: TC LLCT K149-G/25 | Th\u1ee9 Hai | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,232 DEBUG B\u1ece QUA cell không rõ ca: ths mai th\u1ecb cúc
+2026-04-03 15:07:22,246 INFO Thêm: TC LLCT K149-G/25 | Th\u1ee9 Ba | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,247 DEBUG B\u1ece QUA cell không rõ ca: ths nguy\u1ec5n v\u0103n thu\u1eadn
+2026-04-03 15:07:22,247 INFO Thêm: TC LLCT K149-G/25 | Th\u1ee9 T\u01b0 | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,247 DEBUG B\u1ece QUA cell không rõ ca: ths phan ng\u1ecdc y\u1ebfn
+2026-04-03 15:07:22,247 DEBUG B\u1ece QUA cell không rõ ca: (phó tr\u01b0\u1edfng khoa)
+2026-04-03 15:07:22,247 INFO Thêm: TC LLCT K149-G/25 | Th\u1ee9 N\u0103m | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,255 DEBUG B\u1ece QUA cell không rõ ca: ths ngô h\u1ed3ng phong
+2026-04-03 15:07:22,257 INFO Thêm: TC LLCT K149-G/25 | Th\u1ee9 Sáu | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,261 DEBUG B\u1ece QUA cell không rõ ca: ths ng th\u1ecb hoàng minh
+2026-04-03 15:07:22,263 INFO Thêm: TC LLCT K150-G1/25 | Th\u1ee9 Hai | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,263 DEBUG B\u1ece QUA cell không rõ ca: ts ph\u1ea1m vân anh
+2026-04-03 15:07:22,263 DEBUG B\u1ece QUA cell không rõ ca: (phó tr\u01b0\u1edfng khoa)
+2026-04-03 15:07:22,263 INFO Thêm: TC LLCT K150-G1/25 | Th\u1ee9 Ba | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,263 DEBUG B\u1ece QUA cell không rõ ca: ths nguy\u1ec5n t kim nhung
+2026-04-03 15:07:22,263 DEBUG B\u1ece QUA cell không rõ ca: (tr\u01b0\u1edfng khoa)
+2026-04-03 15:07:22,263 INFO Thêm: TC LLCT K150-G1/25 | Th\u1ee9 T\u01b0 | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,263 DEBUG B\u1ece QUA cell không rõ ca: ths võ lê ph\u01b0\u01a1ng th\u1ea3o
+2026-04-03 15:07:22,263 INFO Thêm: TC LLCT K150-G1/25 | Th\u1ee9 N\u0103m | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,263 DEBUG B\u1ece QUA cell không rõ ca: ts nguy\u1ec5n th\u1ecb minh trang
+2026-04-03 15:07:22,263 DEBUG B\u1ece QUA cell không rõ ca: (tr\u01b0\u1edfng phòng)
+2026-04-03 15:07:22,281 INFO Thêm: TC LLCT K150-G1/25 | Th\u1ee9 Sáu | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,281 DEBUG B\u1ece QUA cell không rõ ca: ths nguy\u1ec5n th\u1ecb hi\u1ec1n
+2026-04-03 15:07:22,281 INFO Thêm: TC LLCT K151-G2/25 | Th\u1ee9 Hai | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,281 DEBUG B\u1ece QUA cell không rõ ca: ths võ th\u1ecb bích di\u1ec5m
+2026-04-03 15:07:22,281 INFO Thêm: TC LLCT K151-G2/25 | Th\u1ee9 Ba | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,295 DEBUG B\u1ece QUA cell không rõ ca: ths nguy\u1ec5n th\u1ecb hi\u1ec1n
+2026-04-03 15:07:22,295 INFO Thêm: TC LLCT K151-G2/25 | Th\u1ee9 T\u01b0 | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,295 DEBUG B\u1ece QUA cell không rõ ca: ths nguy\u1ec5n th\u1ecb ng\u1ecdc th\u01a1
+2026-04-03 15:07:22,300 INFO Thêm: TC LLCT K151-G2/25 | Th\u1ee9 N\u0103m | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,300 DEBUG B\u1ece QUA cell không rõ ca: ths l\u01b0u di\u1ec5m trang
+2026-04-03 15:07:22,306 INFO Thêm: TC LLCT K151-G2/25 | Th\u1ee9 Sáu | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,311 DEBUG B\u1ece QUA cell không rõ ca: ths tr\u1ecbnh h\u1ed3ng công
+2026-04-03 15:07:22,311 DEBUG B\u1ece QUA cell không rõ ca: (phó tr\u01b0\u1edfng khoa)
+2026-04-03 15:07:22,315 INFO Thêm: TC LLCT K152-YT/25 | Th\u1ee9 Hai | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,315 DEBUG B\u1ece QUA cell không rõ ca: ths nguy\u1ec5n t kim nhung
+2026-04-03 15:07:22,315 DEBUG B\u1ece QUA cell không rõ ca: m\u1eddi \u0111/c nguy\u1ec5n h\u1eefu d\u1ef1
+2026-04-03 15:07:22,315 DEBUG B\u1ece QUA cell không rõ ca: (viettel c\u1ea7n th\u01a1)
+2026-04-03 15:07:22,315 INFO Thêm: TC LLCT K152-YT/25 | Th\u1ee9 Ba | S. | GV: N/A
+2026-04-03 15:07:22,315 INFO Thêm: TC LLCT K152-YT/25 | Th\u1ee9 Ba | C. | GV: N/A
+2026-04-03 15:07:22,315 DEBUG B\u1ece QUA cell không rõ ca: ths nguy\u1ec5n th\u1ecb n\u1ee5
+2026-04-03 15:07:22,315 DEBUG B\u1ece QUA cell không rõ ca: (tr\u01b0\u1edfng khoa)
+2026-04-03 15:07:22,315 INFO Thêm: TC LLCT K152-YT/25 | Th\u1ee9 T\u01b0 | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,326 DEBUG B\u1ece QUA cell không rõ ca: ths nguy\u1ec5n thanh tâm
+2026-04-03 15:07:22,326 DEBUG B\u1ece QUA cell không rõ ca: ths nguy\u1ec5n thanh tâm
+2026-04-03 15:07:22,326 INFO Thêm: TC LLCT K152-YT/25 | Th\u1ee9 Sáu | S. | GV: N/A
+2026-04-03 15:07:22,326 INFO Thêm: TC LLCT K152-YT/25 | Th\u1ee9 Sáu | C. | GV: N/A
+2026-04-03 15:07:22,326 DEBUG B\u1ece QUA cell không rõ ca: ts nguy\u1ec5n minh sang
+2026-04-03 15:07:22,326 DEBUG B\u1ece QUA cell không rõ ca: (phó tr\u01b0\u1edfng khoa)
+2026-04-03 15:07:22,326 INFO Thêm: TC LLCT K153-G3/25 | Th\u1ee9 T\u01b0 | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,326 DEBUG B\u1ece QUA cell không rõ ca: ts nguy\u1ec5n minh sang
+2026-04-03 15:07:22,326 DEBUG B\u1ece QUA cell không rõ ca: (phó tr\u01b0\u1edfng khoa)
+2026-04-03 15:07:22,326 DEBUG B\u1ece QUA cell không rõ ca: ths nguy\u1ec5n thanh tâm
+2026-04-03 15:07:22,343 INFO Thêm: TC LLCT K153-G3/25 | Th\u1ee9 N\u0103m | S. | GV: N/A
+2026-04-03 15:07:22,343 INFO Thêm: TC LLCT K153-G3/25 | Th\u1ee9 N\u0103m | C. | GV: N/A
+2026-04-03 15:07:22,347 DEBUG B\u1ece QUA cell không rõ ca: ths nguy\u1ec5n thanh tâm
+2026-04-03 15:07:22,347 DEBUG B\u1ece QUA cell không rõ ca: ths nguy\u1ec5n thanh tâm
+2026-04-03 15:07:22,349 INFO Thêm: TC LLCT K153-G3/25 | Th\u1ee9 Sáu | S. | GV: N/A
+2026-04-03 15:07:22,352 INFO Thêm: TC LLCT K153-G3/25 | Th\u1ee9 Sáu | C. | GV: N/A
+2026-04-03 15:07:22,359 DEBUG B\u1ece QUA cell không rõ ca: ths võ th\u1ecb c\u1ea9m tú
+2026-04-03 15:07:22,359 DEBUG B\u1ece QUA cell không rõ ca: (phó tr\u01b0\u1edfng khoa)
+2026-04-03 15:07:22,359 INFO Thêm: TC LLCT KTT K142/ST | Th\u1ee9 Ba | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,359 DEBUG B\u1ece QUA cell không rõ ca: ths t\u0103ng v\u0103n c\u01b0\u01a1ng
+2026-04-03 15:07:22,359 INFO Thêm: TC LLCT KTT K142/ST | Th\u1ee9 T\u01b0 | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,359 DEBUG B\u1ece QUA cell không rõ ca: ths nguy\u1ec5n thanh tâm
+2026-04-03 15:07:22,359 DEBUG B\u1ece QUA cell không rõ ca: ths nguy\u1ec5n thanh tâm
+2026-04-03 15:07:22,359 INFO Thêm: TC LLCT KTT K142/ST | Th\u1ee9 Sáu | S. | GV: N/A
+2026-04-03 15:07:22,376 INFO Thêm: TC LLCT KTT K142/ST | Th\u1ee9 Sáu | C. | GV: N/A
+2026-04-03 15:07:22,376 DEBUG B\u1ece QUA cell không rõ ca: ths lê thanh liêm
+2026-04-03 15:07:22,383 INFO Thêm: TC LLCT K01B/CT25 | Th\u1ee9 Hai | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,383 DEBUG B\u1ece QUA cell không rõ ca: ts tr\u1ea7n thanh sang
+2026-04-03 15:07:22,386 DEBUG B\u1ece QUA cell không rõ ca: (phó hi\u1ec7u tr\u01b0\u1edfng)
+2026-04-03 15:07:22,386 INFO Thêm: TC LLCT K01B/CT25 | Th\u1ee9 Ba | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,386 DEBUG B\u1ece QUA cell không rõ ca: ths nguy\u1ec5n ng\u1ecdc v\u1eb9n
+2026-04-03 15:07:22,392 INFO Thêm: TC LLCT K01B/CT25 | Th\u1ee9 T\u01b0 | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,392 DEBUG B\u1ece QUA cell không rõ ca: ths chu th\u1ecb ph\u01b0\u01a1ng ng\u1ecdc
+2026-04-03 15:07:22,392 INFO Thêm: TC LLCT K01B/CT25 | Th\u1ee9 N\u0103m | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,392 DEBUG B\u1ece QUA cell không rõ ca: ths nguy\u1ec5n th\u1ecb thúy h\u1eb1ng
+2026-04-03 15:07:22,392 DEBUG B\u1ece QUA cell không rõ ca: (phó tr\u01b0\u1edfng phòng)
+2026-04-03 15:07:22,392 INFO Thêm: TC LLCT K01B/CT25 | Th\u1ee9 Sáu | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,406 DEBUG B\u1ece QUA cell không rõ ca: ths nguy\u1ec5n th\u1ecb ng\u1ecdc th\u01a1
+2026-04-03 15:07:22,406 INFO Thêm: TC LLCT K02B/CT25 | Th\u1ee9 Hai | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,410 DEBUG B\u1ece QUA cell không rõ ca: ths l\u01b0u di\u1ec5m trang
+2026-04-03 15:07:22,412 INFO Thêm: TC LLCT K02B/CT25 | Th\u1ee9 Ba | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,412 DEBUG B\u1ece QUA cell không rõ ca: ths nguy\u1ec5n th\u1ecb ng\u1ecdc th\u01a1
+2026-04-03 15:07:22,415 INFO Thêm: TC LLCT K02B/CT25 | Th\u1ee9 T\u01b0 | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,415 DEBUG B\u1ece QUA cell không rõ ca: ths nguy\u1ec5n th\u1ecb hi\u1ec1n
+2026-04-03 15:07:22,419 INFO Thêm: TC LLCT K02B/CT25 | Th\u1ee9 N\u0103m | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,419 DEBUG B\u1ece QUA cell không rõ ca: ths nguy\u1ec5n th\u1ecb hi\u1ec1n
+2026-04-03 15:07:22,422 INFO Thêm: TC LLCT K02B/CT25 | Th\u1ee9 Sáu | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,422 DEBUG B\u1ece QUA cell không rõ ca: cbct: v. ph\u1ee5ng, t. tu\u1ea5n
+2026-04-03 15:07:22,422 DEBUG B\u1ece QUA cell không rõ ca: (phòng ql\u0111t&nckh)
+2026-04-03 15:07:22,422 INFO Thêm: TC LLCT K01A/CT25 | Th\u1ee9 Hai | S. | GV: N/A
+2026-04-03 15:07:22,422 INFO Thêm: TC LLCT K01A/CT25 | Th\u1ee9 Hai | C. | GV: N/A
+2026-04-03 15:07:22,422 DEBUG B\u1ece QUA cell không rõ ca: ths lê chí tâm
+2026-04-03 15:07:22,422 DEBUG B\u1ece QUA cell không rõ ca: (phó tr\u01b0\u1edfng phòng)
+2026-04-03 15:07:22,422 INFO Thêm: TC LLCT K01A/CT25 | Th\u1ee9 Ba | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,438 DEBUG B\u1ece QUA cell không rõ ca: ths nguy\u1ec5n út m\u01b0\u1eddi
+2026-04-03 15:07:22,438 INFO Thêm: TC LLCT K01A/CT25 | Th\u1ee9 T\u01b0 | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,438 DEBUG B\u1ece QUA cell không rõ ca: ths nguy\u1ec5n ng\u1ecdc v\u1eb9n
+2026-04-03 15:07:22,438 INFO Thêm: TC LLCT K01A/CT25 | Th\u1ee9 N\u0103m | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,438 DEBUG B\u1ece QUA cell không rõ ca: ths nguy\u1ec5n th\u1ebf trung
+2026-04-03 15:07:22,438 INFO Thêm: TC LLCT K01A/CT25 | Th\u1ee9 Sáu | C\u1ea3 ngày | GV: N/A
+2026-04-03 15:07:22,468 INFO Upload hoàn t\u1ea5t: inserted=70, skipped=0
+2026-04-03 15:07:25,770 INFO Query l\u1ecbch l\u1edbp ID=32 t\u1eeb 30/03/2026 \u2192 03/04/2026
+2026-04-03 15:07:25,782 INFO Query l\u1ecbch l\u1edbp ID=33 t\u1eeb 30/03/2026 \u2192 03/04/2026
+2026-04-03 15:07:25,787 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp CC LLCT K18B6-CT
+2026-04-03 15:07:25,787 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp CC LLCT K18B2-ST
+2026-04-03 15:07:25,787 INFO Query l\u1ecbch l\u1edbp ID=34 t\u1eeb 30/03/2026 \u2192 03/04/2026
+2026-04-03 15:07:25,804 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp CC LLCT K19B1-CT
+2026-04-03 15:07:25,833 INFO Query l\u1ecbch l\u1edbp ID=35 t\u1eeb 30/03/2026 \u2192 03/04/2026
+2026-04-03 15:07:25,849 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp CC LLCT K19B2-CT
+2026-04-03 15:07:25,865 INFO Query l\u1ecbch l\u1edbp ID=38 t\u1eeb 30/03/2026 \u2192 03/04/2026
+2026-04-03 15:07:25,871 INFO Query l\u1ecbch l\u1edbp ID=36 t\u1eeb 30/03/2026 \u2192 03/04/2026
+2026-04-03 15:07:25,886 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K140/CT
+2026-04-03 15:07:25,888 INFO Query l\u1ecbch l\u1edbp ID=39 t\u1eeb 30/03/2026 \u2192 03/04/2026
+2026-04-03 15:07:25,888 INFO Query l\u1ecbch l\u1edbp ID=40 t\u1eeb 30/03/2026 \u2192 03/04/2026
+2026-04-03 15:07:25,888 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT TT K38/CT
+2026-04-03 15:07:25,897 INFO Query l\u1ecbch l\u1edbp ID=37 t\u1eeb 30/03/2026 \u2192 03/04/2026
+2026-04-03 15:07:25,906 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K141/CT
+2026-04-03 15:07:25,921 INFO Query l\u1ecbch l\u1edbp ID=41 t\u1eeb 30/03/2026 \u2192 03/04/2026
+2026-04-03 15:07:25,921 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K142/CT
+2026-04-03 15:07:25,929 INFO Tr\u1ea3 v\u1ec1 5 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT TT K39/CT
+2026-04-03 15:07:25,937 INFO Query l\u1ecbch l\u1edbp ID=42 t\u1eeb 30/03/2026 \u2192 03/04/2026
+2026-04-03 15:07:25,957 INFO Tr\u1ea3 v\u1ec1 3 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K144/CT
+2026-04-03 15:07:25,970 INFO Query l\u1ecbch l\u1edbp ID=44 t\u1eeb 30/03/2026 \u2192 03/04/2026
+2026-04-03 15:07:25,971 INFO Query l\u1ecbch l\u1edbp ID=43 t\u1eeb 30/03/2026 \u2192 03/04/2026
+2026-04-03 15:07:25,973 INFO Query l\u1ecbch l\u1edbp ID=46 t\u1eeb 30/03/2026 \u2192 03/04/2026
+2026-04-03 15:07:25,973 INFO Query l\u1ecbch l\u1edbp ID=47 t\u1eeb 30/03/2026 \u2192 03/04/2026
+2026-04-03 15:07:25,973 INFO Query l\u1ecbch l\u1edbp ID=45 t\u1eeb 30/03/2026 \u2192 03/04/2026
+2026-04-03 15:07:25,987 INFO Tr\u1ea3 v\u1ec1 6 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K146/CT
+2026-04-03 15:07:26,010 INFO Tr\u1ea3 v\u1ec1 5 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K149-G/25
+2026-04-03 15:07:26,010 INFO Tr\u1ea3 v\u1ec1 4 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K147/CT
+2026-04-03 15:07:26,010 INFO Tr\u1ea3 v\u1ec1 2 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K145/CT
+2026-04-03 15:07:26,021 INFO Query l\u1ecbch l\u1edbp ID=48 t\u1eeb 30/03/2026 \u2192 03/04/2026
+2026-04-03 15:07:26,027 INFO Query l\u1ecbch l\u1edbp ID=49 t\u1eeb 30/03/2026 \u2192 03/04/2026
+2026-04-03 15:07:26,030 INFO Tr\u1ea3 v\u1ec1 5 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K150-G1/25
+2026-04-03 15:07:26,045 INFO Tr\u1ea3 v\u1ec1 5 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K151-G2/25
+2026-04-03 15:07:26,061 INFO Tr\u1ea3 v\u1ec1 6 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K152-YT/25
+2026-04-03 15:07:26,065 INFO Query l\u1ecbch l\u1edbp ID=52 t\u1eeb 30/03/2026 \u2192 03/04/2026
+2026-04-03 15:07:26,069 INFO Query l\u1ecbch l\u1edbp ID=50 t\u1eeb 30/03/2026 \u2192 03/04/2026
+2026-04-03 15:07:26,070 INFO Query l\u1ecbch l\u1edbp ID=51 t\u1eeb 30/03/2026 \u2192 03/04/2026
+2026-04-03 15:07:26,088 INFO Tr\u1ea3 v\u1ec1 4 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT KTT K142/ST
+2026-04-03 15:07:26,088 INFO Tr\u1ea3 v\u1ec1 5 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K153-G3/25
+2026-04-03 15:07:26,090 INFO Tr\u1ea3 v\u1ec1 0 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT KTT K141/ST
+2026-04-03 15:07:26,117 INFO Query l\u1ecbch l\u1edbp ID=55 t\u1eeb 30/03/2026 \u2192 03/04/2026
+2026-04-03 15:07:26,117 INFO Query l\u1ecbch l\u1edbp ID=54 t\u1eeb 30/03/2026 \u2192 03/04/2026
+2026-04-03 15:07:26,117 INFO Query l\u1ecbch l\u1edbp ID=53 t\u1eeb 30/03/2026 \u2192 03/04/2026
+2026-04-03 15:07:26,133 INFO Tr\u1ea3 v\u1ec1 6 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K01A/CT25
+2026-04-03 15:07:26,133 INFO Tr\u1ea3 v\u1ec1 5 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K02B/CT25
+2026-04-03 15:07:26,142 INFO Tr\u1ea3 v\u1ec1 5 chi ti\u1ebft l\u1ecbch cho l\u1edbp TC LLCT K01B/CT25
+2026-04-03 15:07:59,858 INFO API current-and-next g\u1ecdi, days_ahead=5, today=2026-04-03
+2026-04-03 15:07:59,860 INFO Query bác s\u0129 tr\u1ef1c ngày: 03/04/2026
+2026-04-03 15:07:59,869 INFO Tìm th\u1ea5y LichHoc ID=50 - Tu\u1ea7n t\u1eeb 30/03/2026 \u0111\u1ebfn 03/04/2026
+2026-04-03 15:07:59,869 DEBUG Th\u1ee9 trong tu\u1ea7n: 5
+2026-04-03 15:07:59,869 INFO Tìm th\u1ea5y 16 chi ti\u1ebft l\u1ecbch ngày 03/04/2026
+2026-04-03 15:07:59,887 INFO Bác s\u0129 tr\u1ef1c: Bác S\u0129 2 | Ca: C\u1ea3 ngày | L\u1edbp: TC LLCT K150-G1/25
+2026-04-03 15:07:59,887 INFO Bác s\u0129 tr\u1ef1c: Bac Si 1 | Ca: C\u1ea3 ngày | L\u1edbp: TC LLCT K146/CT
+2026-04-03 15:07:59,887 INFO Bác s\u0129 tr\u1ef1c: Bác S\u0129 3 | Ca: Sáng | L\u1edbp: TC LLCT K152-YT/25
+2026-04-03 15:07:59,902 INFO Bác s\u0129 tr\u1ef1c: Bác S\u0129 3 | Ca: Chi\u1ec1u | L\u1edbp: TC LLCT K152-YT/25
+2026-04-03 15:07:59,902 INFO Query bác s\u0129 tr\u1ef1c ngày: 04/04/2026
+2026-04-03 15:07:59,902 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 04/04/2026
+2026-04-03 15:07:59,902 INFO Query bác s\u0129 tr\u1ef1c ngày: 05/04/2026
+2026-04-03 15:07:59,902 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 05/04/2026
+2026-04-03 15:07:59,902 INFO Query bác s\u0129 tr\u1ef1c ngày: 06/04/2026
+2026-04-03 15:07:59,902 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 06/04/2026
+2026-04-03 15:07:59,902 INFO Query bác s\u0129 tr\u1ef1c ngày: 07/04/2026
+2026-04-03 15:07:59,916 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 07/04/2026
+2026-04-03 15:07:59,916 INFO Query bác s\u0129 tr\u1ef1c ngày: 08/04/2026
+2026-04-03 15:07:59,919 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 08/04/2026
+2026-04-03 15:07:59,919 INFO Tr\u1ea3 v\u1ec1: current=4, upcoming=0
+2026-04-03 15:08:09,420 INFO API current-and-next g\u1ecdi, days_ahead=5, today=2026-04-03
+2026-04-03 15:08:09,420 INFO Query bác s\u0129 tr\u1ef1c ngày: 03/04/2026
+2026-04-03 15:08:09,429 INFO Tìm th\u1ea5y LichHoc ID=50 - Tu\u1ea7n t\u1eeb 30/03/2026 \u0111\u1ebfn 03/04/2026
+2026-04-03 15:08:09,429 DEBUG Th\u1ee9 trong tu\u1ea7n: 5
+2026-04-03 15:08:09,429 INFO Tìm th\u1ea5y 16 chi ti\u1ebft l\u1ecbch ngày 03/04/2026
+2026-04-03 15:08:09,437 INFO Bác s\u0129 tr\u1ef1c: Bác S\u0129 2 | Ca: C\u1ea3 ngày | L\u1edbp: TC LLCT K150-G1/25
+2026-04-03 15:08:09,437 INFO Bác s\u0129 tr\u1ef1c: Bac Si 1 | Ca: C\u1ea3 ngày | L\u1edbp: TC LLCT K146/CT
+2026-04-03 15:08:09,444 INFO Bác s\u0129 tr\u1ef1c: Bác S\u0129 3 | Ca: Sáng | L\u1edbp: TC LLCT K152-YT/25
+2026-04-03 15:08:09,444 INFO Bác s\u0129 tr\u1ef1c: Bác S\u0129 3 | Ca: Chi\u1ec1u | L\u1edbp: TC LLCT K152-YT/25
+2026-04-03 15:08:09,450 INFO Query bác s\u0129 tr\u1ef1c ngày: 04/04/2026
+2026-04-03 15:08:09,453 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 04/04/2026
+2026-04-03 15:08:09,453 INFO Query bác s\u0129 tr\u1ef1c ngày: 05/04/2026
+2026-04-03 15:08:09,453 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 05/04/2026
+2026-04-03 15:08:09,453 INFO Query bác s\u0129 tr\u1ef1c ngày: 06/04/2026
+2026-04-03 15:08:09,453 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 06/04/2026
+2026-04-03 15:08:09,453 INFO Query bác s\u0129 tr\u1ef1c ngày: 07/04/2026
+2026-04-03 15:08:09,453 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 07/04/2026
+2026-04-03 15:08:09,453 INFO Query bác s\u0129 tr\u1ef1c ngày: 08/04/2026
+2026-04-03 15:08:09,453 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 08/04/2026
+2026-04-03 15:08:09,453 INFO Tr\u1ea3 v\u1ec1: current=4, upcoming=0
+2026-04-03 15:08:09,471 INFO API current-and-next g\u1ecdi, days_ahead=5, today=2026-04-03
+2026-04-03 15:08:09,471 INFO Query bác s\u0129 tr\u1ef1c ngày: 03/04/2026
+2026-04-03 15:08:09,471 INFO Tìm th\u1ea5y LichHoc ID=50 - Tu\u1ea7n t\u1eeb 30/03/2026 \u0111\u1ebfn 03/04/2026
+2026-04-03 15:08:09,471 DEBUG Th\u1ee9 trong tu\u1ea7n: 5
+2026-04-03 15:08:09,485 INFO Tìm th\u1ea5y 16 chi ti\u1ebft l\u1ecbch ngày 03/04/2026
+2026-04-03 15:08:09,485 INFO Bác s\u0129 tr\u1ef1c: Bác S\u0129 2 | Ca: C\u1ea3 ngày | L\u1edbp: TC LLCT K150-G1/25
+2026-04-03 15:08:09,485 INFO Bác s\u0129 tr\u1ef1c: Bac Si 1 | Ca: C\u1ea3 ngày | L\u1edbp: TC LLCT K146/CT
+2026-04-03 15:08:09,499 INFO Bác s\u0129 tr\u1ef1c: Bác S\u0129 3 | Ca: Sáng | L\u1edbp: TC LLCT K152-YT/25
+2026-04-03 15:08:09,502 INFO Bác s\u0129 tr\u1ef1c: Bác S\u0129 3 | Ca: Chi\u1ec1u | L\u1edbp: TC LLCT K152-YT/25
+2026-04-03 15:08:09,502 INFO Query bác s\u0129 tr\u1ef1c ngày: 04/04/2026
+2026-04-03 15:08:09,502 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 04/04/2026
+2026-04-03 15:08:09,502 INFO Query bác s\u0129 tr\u1ef1c ngày: 05/04/2026
+2026-04-03 15:08:09,508 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 05/04/2026
+2026-04-03 15:08:09,508 INFO Query bác s\u0129 tr\u1ef1c ngày: 06/04/2026
+2026-04-03 15:08:09,510 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 06/04/2026
+2026-04-03 15:08:09,510 INFO Query bác s\u0129 tr\u1ef1c ngày: 07/04/2026
+2026-04-03 15:08:09,515 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 07/04/2026
+2026-04-03 15:08:09,515 INFO Query bác s\u0129 tr\u1ef1c ngày: 08/04/2026
+2026-04-03 15:08:09,517 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 08/04/2026
+2026-04-03 15:08:09,517 INFO Tr\u1ea3 v\u1ec1: current=4, upcoming=0
+2026-04-03 15:13:09,454 INFO API current-and-next g\u1ecdi, days_ahead=5, today=2026-04-03
+2026-04-03 15:13:09,455 INFO Query bác s\u0129 tr\u1ef1c ngày: 03/04/2026
+2026-04-03 15:13:09,461 INFO Tìm th\u1ea5y LichHoc ID=50 - Tu\u1ea7n t\u1eeb 30/03/2026 \u0111\u1ebfn 03/04/2026
+2026-04-03 15:13:09,461 DEBUG Th\u1ee9 trong tu\u1ea7n: 5
+2026-04-03 15:13:09,461 INFO Tìm th\u1ea5y 16 chi ti\u1ebft l\u1ecbch ngày 03/04/2026
+2026-04-03 15:13:09,470 INFO Bác s\u0129 tr\u1ef1c: Bác S\u0129 2 | Ca: C\u1ea3 ngày | L\u1edbp: TC LLCT K150-G1/25
+2026-04-03 15:13:09,470 INFO Bác s\u0129 tr\u1ef1c: Bac Si 1 | Ca: C\u1ea3 ngày | L\u1edbp: TC LLCT K146/CT
+2026-04-03 15:13:09,475 INFO Bác s\u0129 tr\u1ef1c: Bác S\u0129 3 | Ca: Sáng | L\u1edbp: TC LLCT K152-YT/25
+2026-04-03 15:13:09,475 INFO Bác s\u0129 tr\u1ef1c: Bác S\u0129 3 | Ca: Chi\u1ec1u | L\u1edbp: TC LLCT K152-YT/25
+2026-04-03 15:13:09,475 INFO Query bác s\u0129 tr\u1ef1c ngày: 04/04/2026
+2026-04-03 15:13:09,475 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 04/04/2026
+2026-04-03 15:13:09,475 INFO Query bác s\u0129 tr\u1ef1c ngày: 05/04/2026
+2026-04-03 15:13:09,484 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 05/04/2026
+2026-04-03 15:13:09,485 INFO Query bác s\u0129 tr\u1ef1c ngày: 06/04/2026
+2026-04-03 15:13:09,487 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 06/04/2026
+2026-04-03 15:13:09,487 INFO Query bác s\u0129 tr\u1ef1c ngày: 07/04/2026
+2026-04-03 15:13:09,489 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 07/04/2026
+2026-04-03 15:13:09,489 INFO Query bác s\u0129 tr\u1ef1c ngày: 08/04/2026
+2026-04-03 15:13:09,491 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 08/04/2026
+2026-04-03 15:13:09,491 INFO Tr\u1ea3 v\u1ec1: current=4, upcoming=0
+2026-04-03 15:17:58,162 INFO API current-and-next g\u1ecdi, days_ahead=5, today=2026-04-03
+2026-04-03 15:17:58,162 INFO Query bác s\u0129 tr\u1ef1c ngày: 03/04/2026
+2026-04-03 15:17:58,170 INFO Tìm th\u1ea5y LichHoc ID=50 - Tu\u1ea7n t\u1eeb 30/03/2026 \u0111\u1ebfn 03/04/2026
+2026-04-03 15:17:58,170 DEBUG Th\u1ee9 trong tu\u1ea7n: 5
+2026-04-03 15:17:58,175 INFO Tìm th\u1ea5y 16 chi ti\u1ebft l\u1ecbch ngày 03/04/2026
+2026-04-03 15:17:58,181 INFO Bác s\u0129 tr\u1ef1c: Bác S\u0129 2 | Ca: C\u1ea3 ngày | L\u1edbp: TC LLCT K150-G1/25
+2026-04-03 15:17:58,184 INFO Bác s\u0129 tr\u1ef1c: Bac Si 1 | Ca: C\u1ea3 ngày | L\u1edbp: TC LLCT K146/CT
+2026-04-03 15:17:58,186 INFO Bác s\u0129 tr\u1ef1c: Bác S\u0129 3 | Ca: Sáng | L\u1edbp: TC LLCT K152-YT/25
+2026-04-03 15:17:58,186 INFO Bác s\u0129 tr\u1ef1c: Bác S\u0129 3 | Ca: Chi\u1ec1u | L\u1edbp: TC LLCT K152-YT/25
+2026-04-03 15:17:58,186 INFO Query bác s\u0129 tr\u1ef1c ngày: 04/04/2026
+2026-04-03 15:17:58,195 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 04/04/2026
+2026-04-03 15:17:58,195 INFO Query bác s\u0129 tr\u1ef1c ngày: 05/04/2026
+2026-04-03 15:17:58,200 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 05/04/2026
+2026-04-03 15:17:58,200 INFO Query bác s\u0129 tr\u1ef1c ngày: 06/04/2026
+2026-04-03 15:17:58,202 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 06/04/2026
+2026-04-03 15:17:58,202 INFO Query bác s\u0129 tr\u1ef1c ngày: 07/04/2026
+2026-04-03 15:17:58,204 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 07/04/2026
+2026-04-03 15:17:58,204 INFO Query bác s\u0129 tr\u1ef1c ngày: 08/04/2026
+2026-04-03 15:17:58,204 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 08/04/2026
+2026-04-03 15:17:58,204 INFO Tr\u1ea3 v\u1ec1: current=4, upcoming=0
+2026-04-03 15:17:58,216 INFO API current-and-next g\u1ecdi, days_ahead=5, today=2026-04-03
+2026-04-03 15:17:58,216 INFO Query bác s\u0129 tr\u1ef1c ngày: 03/04/2026
+2026-04-03 15:17:58,221 INFO Tìm th\u1ea5y LichHoc ID=50 - Tu\u1ea7n t\u1eeb 30/03/2026 \u0111\u1ebfn 03/04/2026
+2026-04-03 15:17:58,221 DEBUG Th\u1ee9 trong tu\u1ea7n: 5
+2026-04-03 15:17:58,221 INFO Tìm th\u1ea5y 16 chi ti\u1ebft l\u1ecbch ngày 03/04/2026
+2026-04-03 15:17:58,231 INFO Bác s\u0129 tr\u1ef1c: Bác S\u0129 2 | Ca: C\u1ea3 ngày | L\u1edbp: TC LLCT K150-G1/25
+2026-04-03 15:17:58,231 INFO Bác s\u0129 tr\u1ef1c: Bac Si 1 | Ca: C\u1ea3 ngày | L\u1edbp: TC LLCT K146/CT
+2026-04-03 15:17:58,231 INFO Bác s\u0129 tr\u1ef1c: Bác S\u0129 3 | Ca: Sáng | L\u1edbp: TC LLCT K152-YT/25
+2026-04-03 15:17:58,231 INFO Bác s\u0129 tr\u1ef1c: Bác S\u0129 3 | Ca: Chi\u1ec1u | L\u1edbp: TC LLCT K152-YT/25
+2026-04-03 15:17:58,231 INFO Query bác s\u0129 tr\u1ef1c ngày: 04/04/2026
+2026-04-03 15:17:58,247 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 04/04/2026
+2026-04-03 15:17:58,247 INFO Query bác s\u0129 tr\u1ef1c ngày: 05/04/2026
+2026-04-03 15:17:58,247 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 05/04/2026
+2026-04-03 15:17:58,247 INFO Query bác s\u0129 tr\u1ef1c ngày: 06/04/2026
+2026-04-03 15:17:58,247 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 06/04/2026
+2026-04-03 15:17:58,247 INFO Query bác s\u0129 tr\u1ef1c ngày: 07/04/2026
+2026-04-03 15:17:58,247 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 07/04/2026
+2026-04-03 15:17:58,247 INFO Query bác s\u0129 tr\u1ef1c ngày: 08/04/2026
+2026-04-03 15:17:58,247 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 08/04/2026
+2026-04-03 15:17:58,263 INFO Tr\u1ea3 v\u1ec1: current=4, upcoming=0
+2026-04-03 15:18:01,223 INFO API current-and-next g\u1ecdi, days_ahead=5, today=2026-04-03
+2026-04-03 15:18:01,225 INFO Query bác s\u0129 tr\u1ef1c ngày: 03/04/2026
+2026-04-03 15:18:01,229 INFO Tìm th\u1ea5y LichHoc ID=50 - Tu\u1ea7n t\u1eeb 30/03/2026 \u0111\u1ebfn 03/04/2026
+2026-04-03 15:18:01,229 DEBUG Th\u1ee9 trong tu\u1ea7n: 5
+2026-04-03 15:18:01,229 INFO Tìm th\u1ea5y 16 chi ti\u1ebft l\u1ecbch ngày 03/04/2026
+2026-04-03 15:18:01,238 INFO Bác s\u0129 tr\u1ef1c: Bác S\u0129 2 | Ca: C\u1ea3 ngày | L\u1edbp: TC LLCT K150-G1/25
+2026-04-03 15:18:01,238 INFO Bác s\u0129 tr\u1ef1c: Bac Si 1 | Ca: C\u1ea3 ngày | L\u1edbp: TC LLCT K146/CT
+2026-04-03 15:18:01,247 INFO Bác s\u0129 tr\u1ef1c: Bác S\u0129 3 | Ca: Sáng | L\u1edbp: TC LLCT K152-YT/25
+2026-04-03 15:18:01,252 INFO Bác s\u0129 tr\u1ef1c: Bác S\u0129 3 | Ca: Chi\u1ec1u | L\u1edbp: TC LLCT K152-YT/25
+2026-04-03 15:18:01,252 INFO Query bác s\u0129 tr\u1ef1c ngày: 04/04/2026
+2026-04-03 15:18:01,255 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 04/04/2026
+2026-04-03 15:18:01,255 INFO Query bác s\u0129 tr\u1ef1c ngày: 05/04/2026
+2026-04-03 15:18:01,255 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 05/04/2026
+2026-04-03 15:18:01,255 INFO Query bác s\u0129 tr\u1ef1c ngày: 06/04/2026
+2026-04-03 15:18:01,255 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 06/04/2026
+2026-04-03 15:18:01,255 INFO Query bác s\u0129 tr\u1ef1c ngày: 07/04/2026
+2026-04-03 15:18:01,255 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 07/04/2026
+2026-04-03 15:18:01,255 INFO Query bác s\u0129 tr\u1ef1c ngày: 08/04/2026
+2026-04-03 15:18:01,270 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 08/04/2026
+2026-04-03 15:18:01,270 INFO Tr\u1ea3 v\u1ec1: current=4, upcoming=0
+2026-04-03 15:22:58,179 INFO API current-and-next g\u1ecdi, days_ahead=5, today=2026-04-03
+2026-04-03 15:22:58,179 INFO Query bác s\u0129 tr\u1ef1c ngày: 03/04/2026
+2026-04-03 15:22:58,187 INFO Tìm th\u1ea5y LichHoc ID=50 - Tu\u1ea7n t\u1eeb 30/03/2026 \u0111\u1ebfn 03/04/2026
+2026-04-03 15:22:58,187 DEBUG Th\u1ee9 trong tu\u1ea7n: 5
+2026-04-03 15:22:58,189 INFO Tìm th\u1ea5y 16 chi ti\u1ebft l\u1ecbch ngày 03/04/2026
+2026-04-03 15:22:58,195 INFO Bác s\u0129 tr\u1ef1c: Bác S\u0129 2 | Ca: C\u1ea3 ngày | L\u1edbp: TC LLCT K150-G1/25
+2026-04-03 15:22:58,195 INFO Bác s\u0129 tr\u1ef1c: Bac Si 1 | Ca: C\u1ea3 ngày | L\u1edbp: TC LLCT K146/CT
+2026-04-03 15:22:58,203 INFO Bác s\u0129 tr\u1ef1c: Bác S\u0129 3 | Ca: Sáng | L\u1edbp: TC LLCT K152-YT/25
+2026-04-03 15:22:58,205 INFO Bác s\u0129 tr\u1ef1c: Bác S\u0129 3 | Ca: Chi\u1ec1u | L\u1edbp: TC LLCT K152-YT/25
+2026-04-03 15:22:58,205 INFO Query bác s\u0129 tr\u1ef1c ngày: 04/04/2026
+2026-04-03 15:22:58,205 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 04/04/2026
+2026-04-03 15:22:58,205 INFO Query bác s\u0129 tr\u1ef1c ngày: 05/04/2026
+2026-04-03 15:22:58,211 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 05/04/2026
+2026-04-03 15:22:58,211 INFO Query bác s\u0129 tr\u1ef1c ngày: 06/04/2026
+2026-04-03 15:22:58,215 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 06/04/2026
+2026-04-03 15:22:58,215 INFO Query bác s\u0129 tr\u1ef1c ngày: 07/04/2026
+2026-04-03 15:22:58,218 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 07/04/2026
+2026-04-03 15:22:58,218 INFO Query bác s\u0129 tr\u1ef1c ngày: 08/04/2026
+2026-04-03 15:22:58,220 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 08/04/2026
+2026-04-03 15:22:58,220 INFO Tr\u1ea3 v\u1ec1: current=4, upcoming=0
