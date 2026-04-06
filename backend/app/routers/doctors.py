@@ -9,9 +9,15 @@ from schemas.bacsi_schema import BacSiCreate, BacSiUpdate
 from passlib.context import CryptContext
 
 router = APIRouter(prefix="/doctors", tags=["Doctor"])
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
+pwd_context = CryptContext(
+    schemes=["argon2"],
+    deprecated="auto"
+)
+# =====================
+# HASH PASSWORD (đồng bộ toàn hệ thống)
+# =====================
+def hash_password(password: str) -> str:
+    return pwd_context.hash(password)
 
 # ===============================
 # LẤY DANH SÁCH BÁC SĨ
@@ -51,7 +57,6 @@ def get_doctor(doctor_id: int, db: Session = Depends(get_db)):
 @router.post("/")
 def create_doctor(data: BacSiCreate, db: Session = Depends(get_db)):
 
-    # kiểm tra username trùng
     existing_user = db.query(User).filter(
         User.username == data.username
     ).first()
@@ -74,12 +79,10 @@ def create_doctor(data: BacSiCreate, db: Session = Depends(get_db)):
         db.commit()
         db.refresh(doctor)
 
-        # 2️⃣ Tạo user cho bác sĩ
-        hashed_password = pwd_context.hash(data.password)
-
+        # 2️⃣ Tạo user (argon2)
         user = User(
             username=data.username,
-            password=hashed_password,
+            password=hash_password(data.password),
             role="bacsi",
             id_bacsi=doctor.id_bacsi
         )
@@ -97,7 +100,6 @@ def create_doctor(data: BacSiCreate, db: Session = Depends(get_db)):
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=str(e))
-
 
 # ===============================
 # CẬP NHẬT BÁC SĨ

@@ -10,6 +10,7 @@ from routers.schedule import router as schedule_router
 from routers.cuoc_hen import router as cuoc_hen_router
 from routers.thuoc import router as thuoc_router       
 from routers.contact import router as contact_router
+from routers.toathuoc import router as toathuoc_router
 
 
 app = FastAPI()
@@ -33,6 +34,7 @@ app.include_router(schedule_router)
 app.include_router(cuoc_hen_router)
 app.include_router(thuoc_router)
 app.include_router(contact_router)
+app.include_router(toathuoc_router)
 @app.get("/")
 def root():
     return {"message": "FastAPI backend running!"}

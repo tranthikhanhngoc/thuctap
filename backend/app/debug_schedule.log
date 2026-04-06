@@ -1008,3 +1008,91 @@ AttributeError: module 'bcrypt' has no attribute '__about__'
 2026-04-03 15:22:58,218 INFO Query bác s\u0129 tr\u1ef1c ngày: 08/04/2026
 2026-04-03 15:22:58,220 INFO Không tìm th\u1ea5y tu\u1ea7n ch\u1ee9a ngày 08/04/2026
 2026-04-03 15:22:58,220 INFO Tr\u1ea3 v\u1ec1: current=4, upcoming=0
+2026-04-06 08:20:58,666 WARNING (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Local\Programs\Python\Python313\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2026-04-06 08:20:58,690 DEBUG detected 'bcrypt' backend, version '<unknown>'
+2026-04-06 08:20:58,690 DEBUG 'bcrypt' backend lacks $2$ support, enabling workaround
+2026-04-06 08:22:23,095 WARNING (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Local\Programs\Python\Python313\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2026-04-06 08:22:23,098 DEBUG detected 'bcrypt' backend, version '<unknown>'
+2026-04-06 08:22:23,098 DEBUG 'bcrypt' backend lacks $2$ support, enabling workaround
+2026-04-06 08:25:10,496 WARNING (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Local\Programs\Python\Python313\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2026-04-06 08:25:10,499 DEBUG detected 'bcrypt' backend, version '<unknown>'
+2026-04-06 08:25:10,499 DEBUG 'bcrypt' backend lacks $2$ support, enabling workaround
+2026-04-06 08:25:25,244 WARNING (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Local\Programs\Python\Python313\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2026-04-06 08:25:25,246 DEBUG detected 'bcrypt' backend, version '<unknown>'
+2026-04-06 08:30:50,269 DEBUG detected 'argon2_cffi' backend, version '25.1.0', with support for 0x13 argon2 hashes
+2026-04-06 08:42:44,661 DEBUG detected 'argon2_cffi' backend, version '25.1.0', with support for 0x13 argon2 hashes
+2026-04-06 08:58:53,883 DEBUG Calling on_part_begin with no data
+2026-04-06 08:58:53,884 DEBUG Calling on_header_field with data[42:61]
+2026-04-06 08:58:53,884 DEBUG Calling on_header_value with data[63:129]
+2026-04-06 08:58:53,884 DEBUG Calling on_header_end with no data
+2026-04-06 08:58:53,884 DEBUG Calling on_header_field with data[131:143]
+2026-04-06 08:58:53,885 DEBUG Calling on_header_value with data[145:210]
+2026-04-06 08:58:53,885 DEBUG Calling on_header_end with no data
+2026-04-06 08:58:53,885 DEBUG Calling on_headers_finished with no data
+2026-04-06 08:58:53,886 DEBUG Calling on_part_data with data[214:32085]
+2026-04-06 08:58:53,886 DEBUG Calling on_part_end with no data
+2026-04-06 08:58:53,886 DEBUG Calling on_end with no data
+2026-04-06 08:58:53,888 INFO B\u1eaft \u0111\u1ea7u upload l\u1ecbch tu\u1ea7n: 06/04/2026 \u2192 10/04/2026
+2026-04-06 08:58:53,889 INFO Parsed: start=2026-04-06, end=2026-04-10
+2026-04-06 08:58:53,900 INFO T\u1ea1o LichHoc m\u1edbi ID=1
+2026-04-06 08:58:53,901 INFO File format detected: XLSX, s\u1eed d\u1ee5ng engine: openpyxl
+2026-04-06 08:58:54,947 INFO Tìm th\u1ea5y sheet h\u1ee3p l\u1ec7: Sheet (rows=163, cols=9)
+2026-04-06 08:58:54,952 ERROR L\u1ed7i upload: argument of type 'float' is not iterable
+Traceback (most recent call last):
+  File "D:\TTTT\thuctap-main\thuctap-main\backend\app\routers\schedule.py", line 239, in upload_schedule
+    header_row = find_header_row(df_raw)
+  File "D:\TTTT\thuctap-main\thuctap-main\backend\app\routers\schedule.py", line 160, in find_header_row
+    if any('stt' in v for v in vals) and any('l\u1edbp' in v for v in vals):
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\TTTT\thuctap-main\thuctap-main\backend\app\routers\schedule.py", line 160, in <genexpr>
+    if any('stt' in v for v in vals) and any('l\u1edbp' in v for v in vals):
+           ^^^^^^^^^^
+TypeError: argument of type 'float' is not iterable
+2026-04-06 09:00:01,207 DEBUG Calling on_part_begin with no data
+2026-04-06 09:00:01,208 DEBUG Calling on_header_field with data[42:61]
+2026-04-06 09:00:01,208 DEBUG Calling on_header_value with data[63:129]
+2026-04-06 09:00:01,208 DEBUG Calling on_header_end with no data
+2026-04-06 09:00:01,208 DEBUG Calling on_header_field with data[131:143]
+2026-04-06 09:00:01,208 DEBUG Calling on_header_value with data[145:210]
+2026-04-06 09:00:01,208 DEBUG Calling on_header_end with no data
+2026-04-06 09:00:01,208 DEBUG Calling on_headers_finished with no data
+2026-04-06 09:00:01,209 DEBUG Calling on_part_data with data[214:16384]
+2026-04-06 09:00:01,209 DEBUG Calling on_part_data with data[0:15701]
+2026-04-06 09:00:01,209 DEBUG Calling on_part_end with no data
+2026-04-06 09:00:01,209 DEBUG Calling on_end with no data
+2026-04-06 09:00:01,212 INFO B\u1eaft \u0111\u1ea7u upload l\u1ecbch tu\u1ea7n: 06/04/2026 \u2192 10/04/2026
+2026-04-06 09:00:01,212 INFO Parsed: start=2026-04-06, end=2026-04-10
+2026-04-06 09:00:01,218 INFO T\u1ea1o LichHoc m\u1edbi ID=2
+2026-04-06 09:00:01,219 INFO File format detected: XLSX, s\u1eed d\u1ee5ng engine: openpyxl
+2026-04-06 09:00:01,317 INFO Tìm th\u1ea5y sheet h\u1ee3p l\u1ec7: Sheet (rows=163, cols=9)
+2026-04-06 09:00:01,320 ERROR L\u1ed7i upload: argument of type 'float' is not iterable
+Traceback (most recent call last):
+  File "D:\TTTT\thuctap-main\thuctap-main\backend\app\routers\schedule.py", line 239, in upload_schedule
+    header_row = find_header_row(df_raw)
+  File "D:\TTTT\thuctap-main\thuctap-main\backend\app\routers\schedule.py", line 160, in find_header_row
+    if any('stt' in v for v in vals) and any('l\u1edbp' in v for v in vals):
+       ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\TTTT\thuctap-main\thuctap-main\backend\app\routers\schedule.py", line 160, in <genexpr>
+    if any('stt' in v for v in vals) and any('l\u1edbp' in v for v in vals):
+           ^^^^^^^^^^
+TypeError: argument of type 'float' is not iterable

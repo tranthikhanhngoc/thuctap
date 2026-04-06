@@ -1,17 +1,437 @@
+# import logging
+# from typing import List, Dict, Optional, Tuple   # ← THÊM Tuple vào đây
+# from datetime import date, timedelta
+# from dateutil.parser import parse as parse_date
+# import re
+# import traceback
+# import logging
+# import io
+# logging.basicConfig(filename='debug_schedule.log', level=logging.DEBUG, 
+#                     format='%(asctime)s %(levelname)s %(message)s')
+# logger = logging.getLogger(__name__)
+# import pandas as pd
+# from io import BytesIO
+# from datetime import datetime  # ← thêm dòng này
+
+# from fastapi import APIRouter, UploadFile, File, Depends, HTTPException, Query
+# from sqlalchemy.orm import Session
+# from sqlalchemy import and_
+
+# from database import get_db
+# from models.lophoc import LopHoc
+# from models.lichhoc import LichHoc
+# from models.chitietlichhoc import ChiTietLichHoc
+# from models.bacsi import BacSi
+# from models.lophoc import LopHoc
+
+# # Thiết lập logging
+# logging.basicConfig(
+#     level=logging.INFO,
+#     format="%(asctime)s [%(levelname)s] %(message)s",
+#     datefmt="%Y-%m-%d %H:%M:%S",
+# )
+# logger = logging.getLogger(__name__)
+
+# router = APIRouter(prefix="/schedule", tags=["Schedule"])
+
+# DAY_MAP = {
+#     "Thứ Hai": 1, "Thứ Ba": 2, "Thứ Tư": 3, "Thứ Năm": 4, "Thứ Sáu": 5,
+#     "Thứ Bảy": 6, "Chủ Nhật": 7
+# }
+
+# # ────────────────────────────────────────────────
+# #                Helper Functions
+# # ────────────────────────────────────────────────
+# def normalize_ca(ca: Optional[str]) -> str:
+#     """Chuẩn hóa ca học về 3 giá trị cố định: S., C., Cả ngày"""
+#     if not ca:
+#         return "Cả ngày"
+#     c = ca.lower().strip()
+
+#     if "sáng" in c or "s." in c:
+#         return "S."
+#     if "chiều" in c or "c." in c:
+#         return "C."
+#     return "Cả ngày"
+
+
+# def ca_display_name(ca: str) -> str:
+#     """Chuyển ca ngắn gọn sang tên hiển thị cho frontend"""
+#     mapping = {"S.": "Sáng", "C.": "Chiều", "Cả ngày": "Cả ngày"}
+#     return mapping.get(ca, ca)
+
+# def determine_ca_hoc(text: str) -> Optional[str]:
+#     """Chỉ lưu khi ô bắt đầu rõ ràng bằng S., C., hoặc Cả ngày.
+#        Các ô chứa 'giảng bài', 'báo cáo', 'thi', 'nghỉ', 'mời'... dù có S./C. đi nữa cũng BỎ QUA."""
+#     if not text or pd.isna(text):
+#         return None
+    
+#     t = str(text).lower().strip()
+
+#     # === 1. BỎ QUA các hoạt động không phải ca trực (ưu tiên cao nhất) ===
+#     skip_keywords = [
+#         # "giảng bài", "báo cáo", "thi ", "nghỉ", "học lại", 
+#         # "mời đ/c", "mời ", "phó trưởng khoa", "trưởng khoa", 
+#         # "viettel", "cần thơ"
+#     ]
+#     if any(kw in t for kw in skip_keywords):
+#         logger.debug(f"BỎ QUA cell (chứa từ khóa không lưu): {t[:100]}")
+#         return None
+
+#     # === 2. Chỉ chấp nhận những ô bắt đầu đúng định dạng ca ===
+#     if t.startswith(("cả ngày", "cả ngày.")):
+#         return "Cả ngày"
+
+#     if t.startswith(("s.", "sáng")):
+#         return "S."
+
+#     if t.startswith(("c.", "chiều")):
+#         return "C."
+
+#     # Không khớp gì → bỏ qua
+#     logger.debug(f"BỎ QUA cell không rõ ca: {t[:80]}")
+#     return None
+# def clean_class_name(raw) -> Optional[str]:
+#     if pd.isna(raw):
+#         return None
+#     text = str(raw).strip()
+#     if not text:
+#         return None
+
+#     lines = text.split("\n")
+#     first_line = lines[0].strip().lower()
+
+#     ignore_keywords = ["ghi chú", "nơi nhận", "- ban", "- các khoa", "- lưu", "lưu vt"]
+#     if any(first_line.startswith(kw) for kw in ignore_keywords) or first_line.startswith("-"):
+#         logger.debug(f"Bỏ qua dòng không hợp lệ (ghi chú hoặc header): {first_line}")
+#         return None
+
+#     cleaned = re.sub(r'\s+', ' ', lines[0].strip())
+#     logger.debug(f"Tên lớp sau clean: '{cleaned}'")
+#     return cleaned
+
+
+# def parse_cell_content(value) -> Tuple[Optional[str], Optional[str], Optional[str]]:
+#     """Chỉ parse khi determine_ca_hoc trả về giá trị hợp lệ"""
+#     if pd.isna(value) or not str(value).strip():
+#         return None, None, None
+
+#     text = str(value).strip().replace("\r", "\n")
+#     lines = [line.strip() for line in text.split("\n") if line.strip()]
+#     if not lines:
+#         return None, None, None
+
+#     full_content = "\n".join(lines)
+    
+#     # Không cần xác định ca ở đây nữa vì đã làm bên ngoài
+#     # Tìm giảng viên
+#     giang_vien = None
+#     title_prefixes = ["ts.", "th.s.", "ths.", "pgs.", "gs.", "bs.", "bác sĩ", "dr.", "gv.", "thầy ", "cô "]
+
+#     for i, line in enumerate(lines):
+#         line_lower = line.lower().strip()
+#         if any(p in line_lower for p in title_prefixes) or (i >= 1 and len(line.split()) >= 2):
+#             potential_name = line.strip()
+#             if len(potential_name.split()) >= 2:
+#                 giang_vien = potential_name
+#                 break
+
+#     if not giang_vien and len(lines) >= 2:
+#         potential = lines[1].strip()
+#         if len(potential.split()) >= 2 and not any(w in potential.lower() for w in ['sáng','chiều','cả ngày']):
+#             giang_vien = potential
+
+#     return full_content.strip(), giang_vien, None
+
+
+# def find_valid_sheet(excel: pd.ExcelFile) -> Optional[tuple[str, pd.DataFrame]]:
+#     for sheet in excel.sheet_names:
+#         df = pd.read_excel(excel, sheet_name=sheet, header=None)
+#         if df.shape[0] > 10 and df.shape[1] > 6:
+#             logger.info(f"Tìm thấy sheet hợp lệ: {sheet} (rows={df.shape[0]}, cols={df.shape[1]})")
+#             return sheet, df
+#     logger.warning("Không tìm thấy sheet nào hợp lệ")
+#     return None
+
+
+# def find_header_row(df_raw: pd.DataFrame) -> Optional[int]:
+#     for i in range(min(20, len(df_raw))):
+#         vals = df_raw.iloc[i].astype(str).str.lower().tolist()
+#         if any('stt' in v for v in vals) and any('lớp' in v for v in vals):
+#             logger.info(f"Tìm thấy header ở dòng {i}")
+#             return i
+#     logger.warning("Không tìm thấy header chứa 'STT' và 'Lớp'")
+#     return None
+
+
+# # ────────────────────────────────────────────────
+# #                   Endpoints
+# # ────────────────────────────────────────────────
+
+# @router.post("/upload")
+# async def upload_schedule(
+#     file: UploadFile = File(...),
+#     week_start: str = Query(...),
+#     week_end: str = Query(...),
+#     hoc_ky: int = Query(1, ge=1, le=3),
+#     nam_hoc: str = Query("2025-2026"),
+#     db: Session = Depends(get_db)
+# ):
+#     logger.info(f"Bắt đầu upload lịch tuần: {week_start} → {week_end}")
+#     try:
+#         start_date = parse_date(week_start, dayfirst=True).date()
+#         end_date = parse_date(week_end, dayfirst=True).date()
+#         logger.info(f"Parsed: start={start_date}, end={end_date}")
+
+#         if start_date > end_date:
+#             raise HTTPException(400, detail="Ngày bắt đầu phải trước hoặc bằng ngày kết thúc")
+
+#         # Xóa lịch cũ
+#         existing = db.query(LichHoc).filter(
+#             and_(LichHoc.ngay_bat_dau == start_date, LichHoc.ngay_ket_thuc == end_date)
+#         ).first()
+#         if existing:
+#             logger.info(f"Xóa lịch cũ ID={existing.id_lichhoc}")
+#             db.delete(existing)
+#             db.flush()
+
+#         lich = LichHoc(
+#             hoc_ky=hoc_ky,
+#             nam_hoc=nam_hoc,
+#             ngay_bat_dau=start_date,
+#             ngay_ket_thuc=end_date,
+#             ten_tuan=f"Tuần từ {week_start} đến {week_end}"
+#         )
+#         db.add(lich)
+#         db.flush()
+#         logger.info(f"Tạo LichHoc mới ID={lich.id_lichhoc}")
+
+#         content = await file.read()
+        
+#         # Kiểm tra file có hợp lệ không
+#         if not content or len(content) < 100:
+#             raise HTTPException(400, detail=f"File rỗng hoặc quá nhỏ ({len(content) if content else 0} bytes)")
+        
+#         # Kiểm tra magic number của Excel file
+#         header_hex = content[:8].hex()
+#         is_xlsx = content.startswith(b'PK')  # Modern Excel (ZIP format)
+#         is_xls = content.startswith(b'\xd0\xcf\x11\xe0')  # OLE2 format (Excel 97-2003)
+        
+#         if not (is_xlsx or is_xls):
+#             logger.error(f"File không phải Excel hợp lệ. Header: {header_hex}")
+#             raise HTTPException(400, detail="File không phải định dạng Excel hợp lệ (.xlsx hoặc .xls)")
+        
+#         # Chọn engine phù hợp
+#         engine = "openpyxl" if is_xlsx else "xlrd"
+#         logger.info(f"File format detected: {'XLSX' if is_xlsx else 'XLS'}, sử dụng engine: {engine}")
+        
+#         try:
+#             excel = pd.ExcelFile(BytesIO(content), engine=engine)
+#         except Exception as e:
+#             logger.error(f"Lỗi khi đọc file Excel: {str(e)}")
+#             raise HTTPException(400, detail=f"File Excel không hợp lệ: {str(e)}")
+
+#         sheet_info = find_valid_sheet(excel)
+#         if not sheet_info:
+#             raise HTTPException(400, detail="Không tìm thấy sheet hợp lệ")
+
+#         used_sheet, df_raw = sheet_info
+#         header_row = find_header_row(df_raw)
+#         if header_row is None:
+#             raise HTTPException(400, detail="Không tìm thấy header chứa 'STT' và 'Lớp'")
+
+#         # Đọc raw data (KHÔNG dùng header, giữ nguyên index gốc)
+#         df = df_raw.copy()
+#         # Lấy tên cột từ header row
+#         col_names = [str(v).strip() for v in df.iloc[header_row].values]
+#         df.columns = col_names
+
+#         # Tìm cột STT và Lớp
+#         stt_col = next((c for c in df.columns if "stt" in c.lower()), None)
+#         class_col = next((c for c in df.columns if "lớp" in c.lower()), None)
+
+#         if not stt_col or not class_col:
+#             raise HTTPException(400, detail="Không tìm thấy cột STT hoặc Lớp")
+
+#         # Chỉ lấy dữ liệu sau header
+#         df = df.iloc[header_row + 1:].reset_index(drop=True)
+
+#         logger.info(f"Tổng dòng dữ liệu: {len(df)}, Cột: {list(df.columns)}")
+
+#         # ═══════════════════════════════════════════════════
+#         #   BƯỚC 1: Nhóm các dòng theo Class Block
+#         #   Mỗi block bắt đầu bằng dòng có STT (số)
+#         # ═══════════════════════════════════════════════════
+#         class_blocks = []  # [(class_name, [row_indices])]
+#         current_class_name = None
+#         current_rows = []
+
+#         for idx in range(len(df)):
+#             row = df.iloc[idx]
+#             stt_val = str(row[stt_col]).strip().lower() if pd.notna(row[stt_col]) else ""
+#             class_val = str(row[class_col]).strip() if pd.notna(row[class_col]) else ""
+
+#             # Dòng bắt đầu lớp mới: có STT là số
+#             is_new_class = False
+#             try:
+#                 if stt_val and stt_val != "nan":
+#                     float(stt_val)
+#                     is_new_class = True
+#             except ValueError:
+#                 pass
+            
+#             if is_new_class:
+#                 # Lưu block trước đó
+#                 if current_class_name and current_rows:
+#                     class_blocks.append((current_class_name, current_rows))
+
+#                 # Logic inline từ clean_class_name để ko bị rỗng
+#                 raw_name = class_val
+#                 if class_val:
+#                     lines = str(class_val).strip().split("\n")
+#                     first_line = lines[0].strip().lower()
+#                     ignore = ["ghi chú", "nơi nhận", "- ban", "- các khoa", "- lưu", "lưu vt", "ngày"]
+#                     if not (any(first_line.startswith(kw) for kw in ignore) or first_line.startswith("-")):
+#                         raw_name = re.sub(r'\s+', ' ', lines[0].strip())
+#                     else:
+#                         raw_name = None
+#                 else:
+#                     raw_name = None
+
+#                 current_class_name = raw_name
+#                 current_rows = [idx]
+#             else:
+#                 # Kiểm tra nếu là dòng footer (nơi nhận, ghi chú...)
+#                 low = class_val.lower()
+#                 if any(low.startswith(kw) for kw in ["nơi nhận", "- ban", "- các khoa", "- lưu", "lưu vt"]):
+#                     break  # Hết phần dữ liệu, dừng
+#                 # Thêm vào block hiện tại
+#                 if current_class_name:
+#                     current_rows.append(idx)
+
+#         # Lưu block cuối
+#         if current_class_name and current_rows:
+#             class_blocks.append((current_class_name, current_rows))
+
+#         logger.info(f"Tìm thấy {len(class_blocks)} lớp trong file Excel")
+
+#         # ═══════════════════════════════════════════════════
+#         #   BƯỚC 2: Xử lý từng class block
+#         # ═══════════════════════════════════════════════════
+#         insert_count = 0
+#         skipped = 0
+
+#         for class_name, row_indices in class_blocks:
+#             if not class_name:
+#                 continue
+
+#             # Tạo hoặc lấy lớp
+#             lop = db.query(LopHoc).filter(LopHoc.ten_lop == class_name).first()
+#             if not lop:
+#                 lop = LopHoc(ten_lop=class_name)
+#                 db.add(lop)
+#                 db.flush()
+#                 logger.info(f"Tạo lớp mới: {class_name} (ID={lop.id_lophoc})")
+
+#             # Xử lý từng cột ngày
+#             for day_str, thoidem_id in DAY_MAP.items():
+#                 if day_str not in df.columns:
+#                     continue
+
+#                 # Thu thập TẤT CẢ cell values cho ngày này từ TOÀN BỘ block
+#                 day_cells = []
+#                 for ridx in row_indices:
+#                     cell = df.iloc[ridx][day_str]
+#                     if pd.notna(cell):
+#                         cell_str = str(cell).strip()
+#                         if cell_str and cell_str not in {"/", ".", "-", "nan", ""}:
+#                             day_cells.append(cell_str)
+
+#                 if not day_cells:
+#                     continue
+
+#                 # Phân tích từng cell riêng để tìm ca
+#                 found_cas = set()
+#                 for cell_text in day_cells:
+#                     ca = determine_ca_hoc(cell_text)
+#                     if ca:
+#                         found_cas.add(ca)
+
+#                 if not found_cas:
+#                     logger.debug(f"Bỏ qua {class_name} | {day_str}: không xác định ca")
+#                     continue
+
+#                 # Xử lý từng ca tìm được
+#                 for ca_hoc in found_cas:
+#                     giang_vien = None
+
+#                     # Tìm giảng viên trong các cell
+#                     title_prefixes = ["ts.", "th.s.", "ths.", "pgs.", "gs.", "bs.", "bác sĩ", "dr.", "gv.", "thầy ", "cô "]
+#                     for cell_text in day_cells:
+#                         for line in cell_text.split("\n"):
+#                             line_lower = line.strip().lower()
+#                             if any(p in line_lower for p in title_prefixes):
+#                                 potential = line.strip()
+#                                 if len(potential.split()) >= 2:
+#                                     giang_vien = potential
+#                                     break
+#                         if giang_vien:
+#                             break
+
+#                     # Mon hoc = toàn bộ nội dung gộp
+#                     mon_hoc = "\n".join(day_cells).strip()
+
+#                     # Kiểm tra trùng lặp
+#                     existing_ct = db.query(ChiTietLichHoc).filter(
+#                         and_(
+#                             ChiTietLichHoc.id_lichhoc == lich.id_lichhoc,
+#                             ChiTietLichHoc.id_lophoc == lop.id_lophoc,
+#                             ChiTietLichHoc.id_thoidem == thoidem_id,
+#                             ChiTietLichHoc.ca_hoc == ca_hoc,
+#                         )
+#                     ).first()
+
+#                     if existing_ct:
+#                         skipped += 1
+#                         continue
+
+#                     ct = ChiTietLichHoc(
+#                         id_lichhoc=lich.id_lichhoc,
+#                         id_lophoc=lop.id_lophoc,
+#                         id_phong=None,
+#                         id_thoidem=thoidem_id,
+#                         mon_hoc=mon_hoc,
+#                         giang_vien=giang_vien,
+#                         ca_hoc=ca_hoc
+#                     )
+#                     db.add(ct)
+#                     insert_count += 1
+#                     logger.info(f"Thêm: {class_name} | {day_str} | {ca_hoc} | GV: {giang_vien or 'N/A'}")
+
+#         db.commit()
+#         logger.info(f"Upload hoàn tất: inserted={insert_count}, skipped={skipped}")
+
+#         return {
+#             "message": "Upload lịch học thành công",
+#             "inserted": insert_count,
+#             "skipped_duplicate": skipped,
+#             "lich_hoc_id": lich.id_lichhoc
+#         }
+
+#     except Exception as e:
+#         db.rollback()
+#         logger.error(f"Lỗi upload: {str(e)}", exc_info=True)
+#         raise HTTPException(500, detail=f"Lỗi upload: {str(e)}")
+
+
 import logging
-from typing import List, Dict, Optional, Tuple   # ← THÊM Tuple vào đây
+from typing import List, Dict, Optional, Tuple
 from datetime import date, timedelta
 from dateutil.parser import parse as parse_date
 import re
-import traceback
-import logging
-import io
-logging.basicConfig(filename='debug_schedule.log', level=logging.DEBUG, 
-                    format='%(asctime)s %(levelname)s %(message)s')
-logger = logging.getLogger(__name__)
 import pandas as pd
 from io import BytesIO
-from datetime import datetime  # ← thêm dòng này
+from datetime import datetime
 
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
@@ -22,15 +442,14 @@ from models.lophoc import LopHoc
 from models.lichhoc import LichHoc
 from models.chitietlichhoc import ChiTietLichHoc
 from models.bacsi import BacSi
-from models.lophoc import LopHoc
 
-# Thiết lập logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 logger = logging.getLogger(__name__)
+
 
 router = APIRouter(prefix="/schedule", tags=["Schedule"])
 
@@ -39,135 +458,49 @@ DAY_MAP = {
     "Thứ Bảy": 6, "Chủ Nhật": 7
 }
 
-# ────────────────────────────────────────────────
-#                Helper Functions
-# ────────────────────────────────────────────────
+# ====================== HELPER MỚI - KHẮC PHỤC FLOAT ======================
+def safe_str(val) -> str:
+    """Chuyển mọi giá trị (float, NaN, None...) thành string an toàn"""
+    if pd.isna(val) or val is None:
+        return ""
+    return str(val).strip()
+
 def normalize_ca(ca: Optional[str]) -> str:
-    """Chuẩn hóa ca học về 3 giá trị cố định: S., C., Cả ngày"""
     if not ca:
         return "Cả ngày"
-    c = ca.lower().strip()
-
+    c = safe_str(ca).lower()
     if "sáng" in c or "s." in c:
         return "S."
     if "chiều" in c or "c." in c:
         return "C."
     return "Cả ngày"
 
-
 def ca_display_name(ca: str) -> str:
-    """Chuyển ca ngắn gọn sang tên hiển thị cho frontend"""
     mapping = {"S.": "Sáng", "C.": "Chiều", "Cả ngày": "Cả ngày"}
     return mapping.get(ca, ca)
 
-def determine_ca_hoc(text: str) -> Optional[str]:
-    """Chỉ lưu khi ô bắt đầu rõ ràng bằng S., C., hoặc Cả ngày.
-       Các ô chứa 'giảng bài', 'báo cáo', 'thi', 'nghỉ', 'mời'... dù có S./C. đi nữa cũng BỎ QUA."""
-    if not text or pd.isna(text):
-        return None
-    
-    t = str(text).lower().strip()
-
-    # === 1. BỎ QUA các hoạt động không phải ca trực (ưu tiên cao nhất) ===
-    skip_keywords = [
-        # "giảng bài", "báo cáo", "thi ", "nghỉ", "học lại", 
-        # "mời đ/c", "mời ", "phó trưởng khoa", "trưởng khoa", 
-        # "viettel", "cần thơ"
-    ]
-    if any(kw in t for kw in skip_keywords):
-        logger.debug(f"BỎ QUA cell (chứa từ khóa không lưu): {t[:100]}")
-        return None
-
-    # === 2. Chỉ chấp nhận những ô bắt đầu đúng định dạng ca ===
-    if t.startswith(("cả ngày", "cả ngày.")):
-        return "Cả ngày"
-
-    if t.startswith(("s.", "sáng")):
-        return "S."
-
-    if t.startswith(("c.", "chiều")):
-        return "C."
-
-    # Không khớp gì → bỏ qua
-    logger.debug(f"BỎ QUA cell không rõ ca: {t[:80]}")
-    return None
-def clean_class_name(raw) -> Optional[str]:
-    if pd.isna(raw):
-        return None
-    text = str(raw).strip()
+def determine_ca_hoc(text) -> Optional[str]:
+    text = safe_str(text)
     if not text:
         return None
 
-    lines = text.split("\n")
-    first_line = lines[0].strip().lower()
+    t = text.lower().strip()
 
-    ignore_keywords = ["ghi chú", "nơi nhận", "- ban", "- các khoa", "- lưu", "lưu vt"]
-    if any(first_line.startswith(kw) for kw in ignore_keywords) or first_line.startswith("-"):
-        logger.debug(f"Bỏ qua dòng không hợp lệ (ghi chú hoặc header): {first_line}")
+    # Bỏ qua các hoạt động không phải ca trực
+    skip_keywords = ["ghi chú", "nơi nhận", "nghỉ", "thi ", "học lại", "mời đ/c"]
+    if any(kw in t for kw in skip_keywords):
         return None
 
-    cleaned = re.sub(r'\s+', ' ', lines[0].strip())
-    logger.debug(f"Tên lớp sau clean: '{cleaned}'")
-    return cleaned
+    if t.startswith(("cả ngày", "cả ngày.")):
+        return "Cả ngày"
+    if t.startswith(("s.", "sáng")):
+        return "S."
+    if t.startswith(("c.", "chiều")):
+        return "C."
 
-
-def parse_cell_content(value) -> Tuple[Optional[str], Optional[str], Optional[str]]:
-    """Chỉ parse khi determine_ca_hoc trả về giá trị hợp lệ"""
-    if pd.isna(value) or not str(value).strip():
-        return None, None, None
-
-    text = str(value).strip().replace("\r", "\n")
-    lines = [line.strip() for line in text.split("\n") if line.strip()]
-    if not lines:
-        return None, None, None
-
-    full_content = "\n".join(lines)
-    
-    # Không cần xác định ca ở đây nữa vì đã làm bên ngoài
-    # Tìm giảng viên
-    giang_vien = None
-    title_prefixes = ["ts.", "th.s.", "ths.", "pgs.", "gs.", "bs.", "bác sĩ", "dr.", "gv.", "thầy ", "cô "]
-
-    for i, line in enumerate(lines):
-        line_lower = line.lower().strip()
-        if any(p in line_lower for p in title_prefixes) or (i >= 1 and len(line.split()) >= 2):
-            potential_name = line.strip()
-            if len(potential_name.split()) >= 2:
-                giang_vien = potential_name
-                break
-
-    if not giang_vien and len(lines) >= 2:
-        potential = lines[1].strip()
-        if len(potential.split()) >= 2 and not any(w in potential.lower() for w in ['sáng','chiều','cả ngày']):
-            giang_vien = potential
-
-    return full_content.strip(), giang_vien, None
-
-
-def find_valid_sheet(excel: pd.ExcelFile) -> Optional[tuple[str, pd.DataFrame]]:
-    for sheet in excel.sheet_names:
-        df = pd.read_excel(excel, sheet_name=sheet, header=None)
-        if df.shape[0] > 10 and df.shape[1] > 6:
-            logger.info(f"Tìm thấy sheet hợp lệ: {sheet} (rows={df.shape[0]}, cols={df.shape[1]})")
-            return sheet, df
-    logger.warning("Không tìm thấy sheet nào hợp lệ")
     return None
 
-
-def find_header_row(df_raw: pd.DataFrame) -> Optional[int]:
-    for i in range(min(20, len(df_raw))):
-        vals = df_raw.iloc[i].astype(str).str.lower().tolist()
-        if any('stt' in v for v in vals) and any('lớp' in v for v in vals):
-            logger.info(f"Tìm thấy header ở dòng {i}")
-            return i
-    logger.warning("Không tìm thấy header chứa 'STT' và 'Lớp'")
-    return None
-
-
-# ────────────────────────────────────────────────
-#                   Endpoints
-# ────────────────────────────────────────────────
-
+# ====================== ENDPOINTS ======================
 @router.post("/upload")
 async def upload_schedule(
     file: UploadFile = File(...),
@@ -178,20 +511,16 @@ async def upload_schedule(
     db: Session = Depends(get_db)
 ):
     logger.info(f"Bắt đầu upload lịch tuần: {week_start} → {week_end}")
+
     try:
         start_date = parse_date(week_start, dayfirst=True).date()
         end_date = parse_date(week_end, dayfirst=True).date()
-        logger.info(f"Parsed: start={start_date}, end={end_date}")
 
-        if start_date > end_date:
-            raise HTTPException(400, detail="Ngày bắt đầu phải trước hoặc bằng ngày kết thúc")
-
-        # Xóa lịch cũ
+        # Xóa lịch cũ nếu có
         existing = db.query(LichHoc).filter(
             and_(LichHoc.ngay_bat_dau == start_date, LichHoc.ngay_ket_thuc == end_date)
         ).first()
         if existing:
-            logger.info(f"Xóa lịch cũ ID={existing.id_lichhoc}")
             db.delete(existing)
             db.flush()
 
@@ -204,74 +533,57 @@ async def upload_schedule(
         )
         db.add(lich)
         db.flush()
-        logger.info(f"Tạo LichHoc mới ID={lich.id_lichhoc}")
 
         content = await file.read()
-        
-        # Kiểm tra file có hợp lệ không
-        if not content or len(content) < 100:
-            raise HTTPException(400, detail=f"File rỗng hoặc quá nhỏ ({len(content) if content else 0} bytes)")
-        
-        # Kiểm tra magic number của Excel file
-        header_hex = content[:8].hex()
-        is_xlsx = content.startswith(b'PK')  # Modern Excel (ZIP format)
-        is_xls = content.startswith(b'\xd0\xcf\x11\xe0')  # OLE2 format (Excel 97-2003)
-        
-        if not (is_xlsx or is_xls):
-            logger.error(f"File không phải Excel hợp lệ. Header: {header_hex}")
-            raise HTTPException(400, detail="File không phải định dạng Excel hợp lệ (.xlsx hoặc .xls)")
-        
-        # Chọn engine phù hợp
-        engine = "openpyxl" if is_xlsx else "xlrd"
-        logger.info(f"File format detected: {'XLSX' if is_xlsx else 'XLS'}, sử dụng engine: {engine}")
-        
-        try:
-            excel = pd.ExcelFile(BytesIO(content), engine=engine)
-        except Exception as e:
-            logger.error(f"Lỗi khi đọc file Excel: {str(e)}")
-            raise HTTPException(400, detail=f"File Excel không hợp lệ: {str(e)}")
+        excel = pd.ExcelFile(BytesIO(content))
 
-        sheet_info = find_valid_sheet(excel)
+        # Tìm sheet hợp lệ
+        sheet_info = None
+        for sheet in excel.sheet_names:
+            df_raw = pd.read_excel(excel, sheet_name=sheet, header=None)
+            if df_raw.shape[0] > 10 and df_raw.shape[1] > 6:
+                sheet_info = (sheet, df_raw)
+                break
+
         if not sheet_info:
             raise HTTPException(400, detail="Không tìm thấy sheet hợp lệ")
 
-        used_sheet, df_raw = sheet_info
-        header_row = find_header_row(df_raw)
+        _, df_raw = sheet_info
+
+        # Tìm header row
+        header_row = None
+        for i in range(min(20, len(df_raw))):
+            vals = [safe_str(v).lower() for v in df_raw.iloc[i]]
+            if any('stt' in v for v in vals) and any('lớp' in v for v in vals):
+                header_row = i
+                break
+
         if header_row is None:
             raise HTTPException(400, detail="Không tìm thấy header chứa 'STT' và 'Lớp'")
 
-        # Đọc raw data (KHÔNG dùng header, giữ nguyên index gốc)
+        # Đọc dữ liệu
         df = df_raw.copy()
-        # Lấy tên cột từ header row
-        col_names = [str(v).strip() for v in df.iloc[header_row].values]
+        col_names = [safe_str(v) for v in df.iloc[header_row]]
         df.columns = col_names
+        df = df.iloc[header_row + 1:].reset_index(drop=True)
 
-        # Tìm cột STT và Lớp
-        stt_col = next((c for c in df.columns if "stt" in c.lower()), None)
-        class_col = next((c for c in df.columns if "lớp" in c.lower()), None)
+        stt_col = next((c for c in df.columns if "stt" in safe_str(c).lower()), None)
+        class_col = next((c for c in df.columns if "lớp" in safe_str(c).lower()), None)
 
         if not stt_col or not class_col:
             raise HTTPException(400, detail="Không tìm thấy cột STT hoặc Lớp")
 
-        # Chỉ lấy dữ liệu sau header
-        df = df.iloc[header_row + 1:].reset_index(drop=True)
-
-        logger.info(f"Tổng dòng dữ liệu: {len(df)}, Cột: {list(df.columns)}")
-
-        # ═══════════════════════════════════════════════════
-        #   BƯỚC 1: Nhóm các dòng theo Class Block
-        #   Mỗi block bắt đầu bằng dòng có STT (số)
-        # ═══════════════════════════════════════════════════
-        class_blocks = []  # [(class_name, [row_indices])]
+        # ====================== XỬ LÝ CLASS BLOCK ======================
+        class_blocks = []
         current_class_name = None
         current_rows = []
 
         for idx in range(len(df)):
             row = df.iloc[idx]
-            stt_val = str(row[stt_col]).strip().lower() if pd.notna(row[stt_col]) else ""
-            class_val = str(row[class_col]).strip() if pd.notna(row[class_col]) else ""
+            stt_val = safe_str(row[stt_col]).lower()
+            class_val = safe_str(row[class_col])
 
-            # Dòng bắt đầu lớp mới: có STT là số
+            # Dòng bắt đầu lớp mới (có STT là số)
             is_new_class = False
             try:
                 if stt_val and stt_val != "nan":
@@ -279,45 +591,34 @@ async def upload_schedule(
                     is_new_class = True
             except ValueError:
                 pass
-            
+
             if is_new_class:
-                # Lưu block trước đó
                 if current_class_name and current_rows:
                     class_blocks.append((current_class_name, current_rows))
 
-                # Logic inline từ clean_class_name để ko bị rỗng
-                raw_name = class_val
+                # Làm sạch tên lớp
                 if class_val:
-                    lines = str(class_val).strip().split("\n")
+                    lines = class_val.split("\n")
                     first_line = lines[0].strip().lower()
                     ignore = ["ghi chú", "nơi nhận", "- ban", "- các khoa", "- lưu", "lưu vt", "ngày"]
                     if not (any(first_line.startswith(kw) for kw in ignore) or first_line.startswith("-")):
-                        raw_name = re.sub(r'\s+', ' ', lines[0].strip())
+                        current_class_name = re.sub(r'\s+', ' ', lines[0].strip())
                     else:
-                        raw_name = None
+                        current_class_name = None
                 else:
-                    raw_name = None
+                    current_class_name = None
 
-                current_class_name = raw_name
                 current_rows = [idx]
             else:
-                # Kiểm tra nếu là dòng footer (nơi nhận, ghi chú...)
-                low = class_val.lower()
-                if any(low.startswith(kw) for kw in ["nơi nhận", "- ban", "- các khoa", "- lưu", "lưu vt"]):
-                    break  # Hết phần dữ liệu, dừng
-                # Thêm vào block hiện tại
                 if current_class_name:
                     current_rows.append(idx)
 
-        # Lưu block cuối
         if current_class_name and current_rows:
             class_blocks.append((current_class_name, current_rows))
 
         logger.info(f"Tìm thấy {len(class_blocks)} lớp trong file Excel")
 
-        # ═══════════════════════════════════════════════════
-        #   BƯỚC 2: Xử lý từng class block
-        # ═══════════════════════════════════════════════════
+        # ====================== LƯU VÀO DATABASE ======================
         insert_count = 0
         skipped = 0
 
@@ -325,63 +626,50 @@ async def upload_schedule(
             if not class_name:
                 continue
 
-            # Tạo hoặc lấy lớp
             lop = db.query(LopHoc).filter(LopHoc.ten_lop == class_name).first()
             if not lop:
                 lop = LopHoc(ten_lop=class_name)
                 db.add(lop)
                 db.flush()
-                logger.info(f"Tạo lớp mới: {class_name} (ID={lop.id_lophoc})")
 
-            # Xử lý từng cột ngày
             for day_str, thoidem_id in DAY_MAP.items():
                 if day_str not in df.columns:
                     continue
 
-                # Thu thập TẤT CẢ cell values cho ngày này từ TOÀN BỘ block
                 day_cells = []
                 for ridx in row_indices:
                     cell = df.iloc[ridx][day_str]
-                    if pd.notna(cell):
-                        cell_str = str(cell).strip()
-                        if cell_str and cell_str not in {"/", ".", "-", "nan", ""}:
-                            day_cells.append(cell_str)
+                    cell_str = safe_str(cell)
+                    if cell_str and cell_str not in {"/", ".", "-", "nan", ""}:
+                        day_cells.append(cell_str)
 
                 if not day_cells:
                     continue
 
-                # Phân tích từng cell riêng để tìm ca
                 found_cas = set()
                 for cell_text in day_cells:
                     ca = determine_ca_hoc(cell_text)
                     if ca:
                         found_cas.add(ca)
 
-                if not found_cas:
-                    logger.debug(f"Bỏ qua {class_name} | {day_str}: không xác định ca")
-                    continue
-
-                # Xử lý từng ca tìm được
                 for ca_hoc in found_cas:
+                    # Tìm giảng viên
                     giang_vien = None
-
-                    # Tìm giảng viên trong các cell
                     title_prefixes = ["ts.", "th.s.", "ths.", "pgs.", "gs.", "bs.", "bác sĩ", "dr.", "gv.", "thầy ", "cô "]
                     for cell_text in day_cells:
                         for line in cell_text.split("\n"):
-                            line_lower = line.strip().lower()
+                            line_lower = safe_str(line).lower()
                             if any(p in line_lower for p in title_prefixes):
-                                potential = line.strip()
+                                potential = safe_str(line)
                                 if len(potential.split()) >= 2:
                                     giang_vien = potential
                                     break
                         if giang_vien:
                             break
 
-                    # Mon hoc = toàn bộ nội dung gộp
                     mon_hoc = "\n".join(day_cells).strip()
 
-                    # Kiểm tra trùng lặp
+                    # Kiểm tra trùng
                     existing_ct = db.query(ChiTietLichHoc).filter(
                         and_(
                             ChiTietLichHoc.id_lichhoc == lich.id_lichhoc,
@@ -406,7 +694,6 @@ async def upload_schedule(
                     )
                     db.add(ct)
                     insert_count += 1
-                    logger.info(f"Thêm: {class_name} | {day_str} | {ca_hoc} | GV: {giang_vien or 'N/A'}")
 
         db.commit()
         logger.info(f"Upload hoàn tất: inserted={insert_count}, skipped={skipped}")
@@ -424,6 +711,8 @@ async def upload_schedule(
         raise HTTPException(500, detail=f"Lỗi upload: {str(e)}")
 
 
+# ====================== CÁC ENDPOINT KHÁC GIỮ NGUYÊN ======================
+# (phần get_doctors_on_duty_logic, /doctors/all, /doctors/current-and-next, /week/exists, /week, /class/{class_id} ... bạn giữ nguyên như cũ)
 # ────────────────────────────────────────────────
 #              Bác sĩ / Trực khoa endpoints
 # ────────────────────────────────────────────────
