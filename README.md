@@ -21,3 +21,10 @@ uvicorn main:app --reload
 ```bash
 deactivate
 ```
+
+## Điều chỉnh:http://localhost:5173/bacsi/lich-kham
+- Chỉnh cho khi chưa kê toa (n ull) khog hiện nút xem lại toa
+- CHỉnh khi nhấn đax khám, phải còn nút kê toa
+- Chỉnh giao diện form toa thuốc
+- Đại đại đi
+- 
