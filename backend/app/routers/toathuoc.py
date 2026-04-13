@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session, joinedload
 from datetime import date
+from models.thuoc import Thuoc
 import uuid
 
 from database import get_db
@@ -44,6 +45,22 @@ def create_toa_thuoc(
     db.flush()
 
     for ct in toa_create.chi_tiets:
+        thuoc = db.query(Thuoc).filter(Thuoc.id_thuoc == ct.id_thuoc).first()
+
+        if not thuoc:
+            raise HTTPException(status_code=404, detail=f"Thuốc ID {ct.id_thuoc} không tồn tại")
+
+        # ❗ Kiểm tra tồn kho
+        if thuoc.so_luong_ton < ct.so_luong:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Thuốc {thuoc.ten_thuoc} không đủ tồn kho"
+            )
+
+        # ❗ Trừ kho
+        thuoc.so_luong_ton -= ct.so_luong
+
+        # ❗ Lưu chi tiết toa
         db.add(ToaThuocChiTiet(
             toa_thuoc_id=new_toa.id,
             id_thuoc=ct.id_thuoc,
